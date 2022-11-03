@@ -382,3 +382,111 @@ function findBall(grid: number[][]): number[] {
     }
     return ans;
 };
+
+enum Direction {
+  right = 1,
+  left,
+  up,
+  down
+}
+
+interface Spiral {
+  xmax: number;
+  xmin: number;
+  ymax: number;
+  ymin: number;
+
+}
+
+function getDirection(x: number, y: number, spiral: Spiral, direction: Direction) : Direction {
+    switch (direction) {
+      case Direction.down:
+        if (x < spiral.xmax) {
+          return Direction.down;
+        }
+        spiral.xmax -= 1;
+        return Direction.left;
+      case Direction.up:
+        if (x > spiral.xmin) {
+          return Direction.up;
+        }
+        spiral.xmin += 1;
+        return Direction.right;
+      case Direction.left:
+        if (y > spiral.ymin) {
+          return Direction.left;
+        }
+        spiral.ymin += 1;
+        return Direction.up;
+      case Direction.right:
+        if (y < spiral.ymax) {
+          return Direction.right;
+        }
+        spiral.ymax -= 1;
+        return Direction.down;
+    }
+}
+
+function spiralOrder(matrix: number[][]): number[] {
+  const n = matrix.length;
+  const m = matrix[0].length;
+
+  // go until you hit a boundary
+  let spiral = {xmax: n -1, xmin: 1, ymax: m -1, ymin: 0};
+  // 1 is right, 2 is down, 3 is left, 4 is up
+  let direction = Direction.right;
+  let ans = new Array<number>();
+  let x = 0;
+  let y = 0;
+  ans.push(matrix[0][0]);
+  for (let i = 1; i < n*m; i++) {
+
+    direction = getDirection(x, y, spiral, direction);
+    switch (direction) {
+      case Direction.right:
+        y += 1;
+        break;
+      case Direction.left:
+        y -= 1;
+        break;
+      case Direction.up:
+        x -= 1;
+        break;
+      case Direction.down:
+        x += 1;
+        break;
+    }
+    // if not a boundary, continue
+    ans.push(matrix[x][y]);
+  }
+  return ans;
+};
+
+
+// find 3 ints such that their sum is closest to target
+// take one number, consider all the other pairs is n^3
+// 
+function threeSumClosest(nums: number[], target: number): number {
+  nums.sort((a: number, b:number) => {return a -b;});
+  let diff = Number.MAX_SAFE_INTEGER;
+  console.log(nums);
+  for (let i = 0; i < nums.length; i++) {
+    let lo = i + 1;
+    let hi = nums.length - 1;
+    while ( lo < hi) {
+      const sum = nums[i] + nums[lo] + nums[hi];
+      if (Math.abs(target - sum) < Math.abs(diff)) {
+        // found a closer diff
+        diff = target - sum;
+      }
+      if (sum < target) {
+        // try a bigger number
+        ++lo;
+      } else {
+        --hi;
+      }
+    }
+
+  }
+  return target - diff;
+};
