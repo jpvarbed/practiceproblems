@@ -490,3 +490,57 @@ function threeSumClosest(nums: number[], target: number): number {
   }
   return target - diff;
 };
+
+// p0 starting pop
+// increases at %
+// aug people coming in
+// p target population
+export const nbYear = (p0:number, percent:number, aug:number, p:number): number => {
+  // your code
+  const annualCount = p0 + Math.trunc(p0 * (percent / 100)) + aug;
+  
+  if (annualCount >= p) {
+    return 1;
+  }
+  return 1 + nbYear( annualCount, percent, aug, p);
+}
+// export const nbYear = (p0:number, percent:number, aug:number, p:number): number => {
+//   let years = 0
+//   for(; p0 < p ; ++years) {
+//     p0 += Math.floor(p0 * (percent/100) + aug)
+//   }
+//   return years
+// }
+
+export function positiveSum(arr:number[]):number {
+  let sum = 0;
+ for (const item of arr) {
+   if (item > 0) sum += item;
+ }
+  return sum;
+  return 0;
+}
+
+// export function positiveSum(arr:number[]):number {
+//   return arr.filter((e) => e >= 0).reduce((acc, e) => acc + e , 0)
+// }
+
+// export function positiveSum(arr:number[]):number {
+//   return arr.reduce((sum, n) => n > 0 ? sum + n : sum, 0);
+// }
+
+export function maps(x: number[]): number[]{
+  return x.map((value: number, index: number, x) => value * 2);
+}
+
+// export function maps(x: number[]): number[]{
+//   return x.map(value => value * 2);
+// }
+
+export function number(array: string[]): string[]{
+  return array.map((value: string, index: number) => (index + 1).toString() + ": " + value);
+}
+
+// export function number(array: string[]): string[]{
+//   return array.map((el, i) => `${i+1}: ${el}`);
+// }
