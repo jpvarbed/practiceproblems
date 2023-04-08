@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "sourceMap": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "outDir": "./output",
+  },
+}
