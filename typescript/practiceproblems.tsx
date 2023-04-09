@@ -557,4 +557,122 @@ function multiplicationTable(size: number): number[][] {
   return ans;
 }
 
-console.log(multiplicationTable(3));
+/**
+ * The goal of this exercise is to convert a string to a new string where each character in the new string is 
+ * "(" if that character appears only once in the original string, or ")" if that character appears more than
+ * once in the original string. Ignore capitalization when determining if a character is a duplicate.
+ * @param word 
+ * @returns 
+ */
+function duplicateEncode(word: string) {
+  const ans = new Set<string>();
+  const appearsTwice = new Set<string>();
+  // mark each letter  in the word
+  for (const letter of word) {
+    const lower = letter.toLowerCase();
+    if (ans.has(lower)) {
+      appearsTwice.add(lower);
+    }
+    ans.add(lower);
+  }
+  // if the letter is in the set, it is a duplicate use ) if not use (
+  let out = "";
+  for (const letter of word) {
+    const lower = letter.toLowerCase();
+    if (appearsTwice.has(lower)) {
+      out += ")";
+    } else {
+      out += "(";
+    }
+  }
+  return out;
+}
+// function duplicateEncode(word: string){
+//     // ...
+//     return word
+//     .toLowerCase()
+//     .split('')
+//     .map((a, i, w) => {
+//       return w.indexOf(a) == w.lastIndexOf(a) ? '(' : ')'
+//     })
+//     .join('')
+// }
+
+// leetcode with robot. you don't know the graph size, but you can move in 4 directions
+// function cleanRoom(robot: Robot) {
+//   const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]], visited = new Set();
+
+//   function goBack() {
+//     robot.turnRight();
+//     robot.turnRight();
+//     robot.move();
+//     robot.turnRight();
+//     robot.turnRight();
+//   }
+
+//   function backTrack(cell: number[], prev: number) {
+//     visited.add(cell.join());
+//     robot.clean();
+//     for (let i = 0; i < 4; i++) {
+//       const newDir = (prev + i) % 4;
+//       const [x, y] = directions[newDir];
+//       const newCell = [cell[0] + x, cell[1] + y];
+//       if (!visited.has(newCell.join()) && robot.move()) {
+//         backTrack(newCell, newDir);
+//         goBack();
+//       }
+//       robot.turnRight();
+//     }
+//   }
+//   backTrack([0, 0], 0);
+// };
+
+// clear out all the 1s in the island
+function dfs(grid: string[][], i: number, j: number) {
+  if (i < 0 || i >= grid.length || j < 0 || j >= grid[i].length || grid[i][j] === '0') {
+    return;
+  }
+  grid[i][j] = '0';
+  dfs(grid, i - 1, j);
+  dfs(grid, i + 1, j);
+  dfs(grid, i, j - 1);
+  dfs(grid, i, j + 1);
+}
+
+// 1s are land and 0s are water
+// count number of islands
+function numIslands(grid: string[][]): number {
+  let count = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === '1') {
+        count++;
+        dfs(grid, i, j);
+      }
+    }
+  }
+  return count;
+};
+
+// valid if () {} [] are balanced
+function isValid(s: string): boolean {
+  const stack: string[] = [];
+  // map with (). {} and [
+  const map = new Map<string, string>();
+  map.set('(', ')');
+  map.set('{', '}');
+  map.set('[', ']');
+  for (const char of s) {
+    if (map.has(char)) {
+      stack.push(char);
+    } else {
+      const last = stack.pop();
+      if (!last || map.get(last) !== char) {
+        return false;
+      }
+    }
+  }
+  return stack.length === 0;
+
+};
+console.log(duplicateEncode('recede'));
