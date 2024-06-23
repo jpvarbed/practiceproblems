@@ -9,16 +9,15 @@ function hammingWeight(n: number): number {
     largestOne = Math.pow(2, Math.floor(Math.log2(n)));
   }
   return numberOfOnes;
-};
+}
 
 function countSheep(num: number): string {
   let ans = "";
   for (let i: number = 0; i < num; i++) {
-    ans += (i + 1) + " sheep...";
+    ans += i + 1 + " sheep...";
   }
   return ans;
 }
-
 
 function strEndsWith(str: string, ending: string): boolean {
   // can use .endsWith
@@ -48,13 +47,15 @@ function abbrevName(name: string): string {
   let [first, last] = name.split(" ");
   const initials = first[0].toUpperCase() + "." + last[0].toUpperCase();
   return initials;
-
 }
 
 // dont count highest or lowest
 function sumArray(array: number[]): number {
   if (!array || array.length <= 1) return 0;
-  return array.sort((a, b) => a - b).slice(1, -1).reduce((p, n) => p + n, 0);
+  return array
+    .sort((a, b) => a - b)
+    .slice(1, -1)
+    .reduce((p, n) => p + n, 0);
 }
 
 /*
@@ -72,7 +73,7 @@ function removeChar(str: string): string {
 
 function narcissistic(value: number): boolean {
   if (value < 10) {
-    return true
+    return true;
   }
   const numDigits = Math.ceil(Math.log10(value));
   let sum = 0;
@@ -83,7 +84,6 @@ function narcissistic(value: number): boolean {
   }
   return sum === value;
 }
-
 
 // show all posts from their friends, latest ones first
 // add friends, can ignore
@@ -97,9 +97,7 @@ type Post = {
 };
 
 class Facebook {
-  constructor() {
-
-  }
+  constructor() {}
 
   writePost(userId: number, postContent: string): void {
     if (!this.posts.has(userId)) {
@@ -107,7 +105,9 @@ class Facebook {
       this.posts.set(userId, []);
     }
 
-    this.posts.get(userId)!.push({ id: this.postCount++, content: postContent });
+    this.posts
+      .get(userId)!
+      .push({ id: this.postCount++, content: postContent });
   }
 
   addFriend(user1: number, user2: number): void {
@@ -137,12 +137,15 @@ class Facebook {
 
     this.friendsList.get(userId);
 
-    return this.friendsList.get(userId)!.map((friendId) => {
-      if (!this.posts.has(friendId)) {
-        return [];
-      }
-      return this.posts.get(friendId);
-    }).flat()
+    return this.friendsList
+      .get(userId)!
+      .map((friendId) => {
+        if (!this.posts.has(friendId)) {
+          return [];
+        }
+        return this.posts.get(friendId);
+      })
+      .flat()
       .sort((a, b) => b!.id - a!.id)
       .map((post) => post!.content);
   }
@@ -161,7 +164,7 @@ class Facebook {
 
 function duplicateCount(text: string): number {
   const counts = new Map<string, number>();
-  (text || "").split("").forEach(letter => {
+  (text || "").split("").forEach((letter) => {
     const c = letter.toLowerCase();
     if (counts.get(c)) {
       counts.set(c, counts.get(c)! + 1);
@@ -171,31 +174,34 @@ function duplicateCount(text: string): number {
   });
 
   let count = 0;
-  counts.forEach((c: number, k: string) => { if (c > 1) { count++; } });
+  counts.forEach((c: number, k: string) => {
+    if (c > 1) {
+      count++;
+    }
+  });
   return count;
 }
 
 //   function duplicateCount(text: string): number{
 //   const values = text.toLowerCase();
-//   const distinctValues = [... new Set(values)]; 
+//   const distinctValues = [... new Set(values)];
 //   const count = (s: string) => values.split(s).length - 1 > 1 ;
 //   return distinctValues.filter(value => count(value)).length;
 // }
 
-
 const findOdd = (items: number[]): number => {
-  const uniqueItems = Array.from(new Set(items))
+  const uniqueItems = Array.from(new Set(items));
 
   for (const uniqueItem of uniqueItems) {
-    const numberOccurences = items.filter(item => item === uniqueItem).length
-    if (isOdd(numberOccurences)) return uniqueItem
+    const numberOccurences = items.filter((item) => item === uniqueItem).length;
+    if (isOdd(numberOccurences)) return uniqueItem;
   }
 
-  throw new Error('none found')
-}
+  throw new Error("none found");
+};
 
 function isOdd(num: number): boolean {
-  return num % 2 === 1
+  return num % 2 === 1;
 }
 
 function singleNumber(nums: number[]): number {
@@ -205,7 +211,7 @@ function singleNumber(nums: number[]): number {
     ans ^= n;
   }
   return ans;
-};
+}
 
 function subsetsWithDup(nums: number[]): number[][] {
   nums.sort();
@@ -213,8 +219,7 @@ function subsetsWithDup(nums: number[]): number[][] {
   let indexOfFirstNewlyAddedElement = 0;
   for (let i = 0; i < nums.length; i++) {
     let startIndex = 0;
-    if (nums[i] === nums[i - 1])
-      startIndex = indexOfFirstNewlyAddedElement;
+    if (nums[i] === nums[i - 1]) startIndex = indexOfFirstNewlyAddedElement;
 
     indexOfFirstNewlyAddedElement = subsets.length;
     for (let j = startIndex; j < indexOfFirstNewlyAddedElement; j++) {
@@ -224,7 +229,7 @@ function subsetsWithDup(nums: number[]): number[][] {
     }
   }
   return subsets;
-};
+}
 
 interface Datam {
   ts: number;
@@ -254,24 +259,23 @@ class TimeMap {
 
     const index = this.binarySearch(timestamp, vals);
     console.log("index " + index);
-    if (vals[index].ts > timestamp)
-      return vals[index - 1].val;
+    if (vals[index].ts > timestamp) return vals[index - 1].val;
     return vals[index].val;
   }
 
   binarySearch(timestamp: number, values: Datam[]): number {
     let start = 0;
     let end = values.length - 1;
-    let mid = 0, ts, val;
+    let mid = 0,
+      ts,
+      val;
     while (start <= end) {
       mid = Math.floor((start + end) / 2);
       ts = values[mid].ts;
-      if (ts === timestamp)
-        return mid;
+      if (ts === timestamp) return mid;
       else if (ts < timestamp) {
         start = mid + 1;
-      } else
-        end = mid - 1;
+      } else end = mid - 1;
     }
     return mid;
   }
@@ -323,7 +327,6 @@ class LRUCache {
  * obj.put(key,value)
  */
 
-
 // top left to right = 1
 const topLeftFB = 1;
 const topRightFB = -1;
@@ -345,12 +348,12 @@ function findBallSearch(x: number, y: number, grid: number[][]): number {
   }
 
   // wall
-  if (y === (m - 1) && grid[x][y] === topLeftFB) {
+  if (y === m - 1 && grid[x][y] === topLeftFB) {
     console.log("wall1");
     return noAnswerFB;
   }
 
-  if (grid[x][y] === topLeftFB && (grid[x][y + 1] === topRightFB)) {
+  if (grid[x][y] === topLeftFB && grid[x][y + 1] === topRightFB) {
     console.log("v");
     return noAnswerFB;
   }
@@ -359,13 +362,10 @@ function findBallSearch(x: number, y: number, grid: number[][]): number {
     return noAnswerFB;
   }
 
-
   if (x === n - 1) {
     console.log("answer " + y);
     return y + grid[x][y];
   }
-
-
 
   // V
 
@@ -381,13 +381,13 @@ function findBall(grid: number[][]): number[] {
     ans.push(out);
   }
   return ans;
-};
+}
 
 enum Direction {
   right = 1,
   left,
   up,
-  down
+  down,
 }
 
 interface Spiral {
@@ -395,10 +395,14 @@ interface Spiral {
   xmin: number;
   ymax: number;
   ymin: number;
-
 }
 
-function getDirection(x: number, y: number, spiral: Spiral, direction: Direction): Direction {
+function getDirection(
+  x: number,
+  y: number,
+  spiral: Spiral,
+  direction: Direction
+): Direction {
   switch (direction) {
     case Direction.down:
       if (x < spiral.xmax) {
@@ -440,7 +444,6 @@ function spiralOrder(matrix: number[][]): number[] {
   let y = 0;
   ans.push(matrix[0][0]);
   for (let i = 1; i < n * m; i++) {
-
     direction = getDirection(x, y, spiral, direction);
     switch (direction) {
       case Direction.right:
@@ -460,14 +463,15 @@ function spiralOrder(matrix: number[][]): number[] {
     ans.push(matrix[x][y]);
   }
   return ans;
-};
-
+}
 
 // find 3 ints such that their sum is closest to target
 // take one number, consider all the other pairs is n^3
-// 
+//
 function threeSumClosest(nums: number[], target: number): number {
-  nums.sort((a: number, b: number) => { return a - b; });
+  nums.sort((a: number, b: number) => {
+    return a - b;
+  });
   let diff = Number.MAX_SAFE_INTEGER;
   console.log(nums);
   for (let i = 0; i < nums.length; i++) {
@@ -486,16 +490,20 @@ function threeSumClosest(nums: number[], target: number): number {
         --hi;
       }
     }
-
   }
   return target - diff;
-};
+}
 
 // p0 starting pop
 // increases at %
 // aug people coming in
 // p target population
-const nbYear = (p0: number, percent: number, aug: number, p: number): number => {
+const nbYear = (
+  p0: number,
+  percent: number,
+  aug: number,
+  p: number
+): number => {
   // your code
   const annualCount = p0 + Math.trunc(p0 * (percent / 100)) + aug;
 
@@ -503,7 +511,7 @@ const nbYear = (p0: number, percent: number, aug: number, p: number): number => 
     return 1;
   }
   return 1 + nbYear(annualCount, percent, aug, p);
-}
+};
 //   const nbYear = (p0:number, percent:number, aug:number, p:number): number => {
 //   let years = 0
 //   for(; p0 < p ; ++years) {
@@ -538,7 +546,9 @@ function maps(x: number[]): number[] {
 // }
 
 function number(array: string[]): string[] {
-  return array.map((value: string, index: number) => (index + 1).toString() + ": " + value);
+  return array.map(
+    (value: string, index: number) => (index + 1).toString() + ": " + value
+  );
 }
 
 //   function number(array: string[]): string[]{
@@ -558,11 +568,11 @@ function multiplicationTable(size: number): number[][] {
 }
 
 /**
- * The goal of this exercise is to convert a string to a new string where each character in the new string is 
+ * The goal of this exercise is to convert a string to a new string where each character in the new string is
  * "(" if that character appears only once in the original string, or ")" if that character appears more than
  * once in the original string. Ignore capitalization when determining if a character is a duplicate.
- * @param word 
- * @returns 
+ * @param word
+ * @returns
  */
 function duplicateEncode(word: string) {
   const ans = new Set<string>();
@@ -629,10 +639,16 @@ function duplicateEncode(word: string) {
 
 // clear out all the 1s in the island
 function dfs(grid: string[][], i: number, j: number) {
-  if (i < 0 || i >= grid.length || j < 0 || j >= grid[i].length || grid[i][j] === '0') {
+  if (
+    i < 0 ||
+    i >= grid.length ||
+    j < 0 ||
+    j >= grid[i].length ||
+    grid[i][j] === "0"
+  ) {
     return;
   }
-  grid[i][j] = '0';
+  grid[i][j] = "0";
   dfs(grid, i - 1, j);
   dfs(grid, i + 1, j);
   dfs(grid, i, j - 1);
@@ -645,23 +661,23 @@ function numIslands(grid: string[][]): number {
   let count = 0;
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] === '1') {
+      if (grid[i][j] === "1") {
         count++;
         dfs(grid, i, j);
       }
     }
   }
   return count;
-};
+}
 
 // valid if () {} [] are balanced
 function isValid(s: string): boolean {
   const stack: string[] = [];
   // map with (). {} and [
   const map = new Map<string, string>();
-  map.set('(', ')');
-  map.set('{', '}');
-  map.set('[', ']');
+  map.set("(", ")");
+  map.set("{", "}");
+  map.set("[", "]");
   for (const char of s) {
     if (map.has(char)) {
       stack.push(char);
@@ -673,12 +689,12 @@ function isValid(s: string): boolean {
     }
   }
   return stack.length === 0;
-};
+}
 
 function twoSum(nums: number[], target: number): number[] {
   const values = new Set<number>();
   for (const num of nums) {
-    values.add(num)
+    values.add(num);
   }
   for (let i = 0; i < nums.length; i++) {
     const num = nums[i];
@@ -688,12 +704,11 @@ function twoSum(nums: number[], target: number): number[] {
     }
   }
   return [];
-};
+}
 
 // Happy if you square each digit and add them up and repeat until you get 1
 function isHappy(n: number): boolean {
-  if (n === 0)
-    return false;
+  if (n === 0) return false;
   // get each digit, square it, add it to the sum
   const seen = new Set<number>();
   for (let i = 0; i < 100; i++) {
@@ -713,7 +728,7 @@ function isHappy(n: number): boolean {
     n = sum;
   }
   return false;
-};
+}
 
 function isPalindrome(s: string): boolean {
   let i = 0;
@@ -739,25 +754,25 @@ function longestPalindrome(s: string): string {
     }
   }
   return longest;
-};
+}
 
 function removeStars(s: string): string {
   // remove star to the left
   // find the first star
   // this is shitty performance
-  let i = s.indexOf('*');
+  let i = s.indexOf("*");
   while (i !== -1) {
     // remove the star and the char to the left
     s = s.slice(0, i - 1) + s.slice(i + 1);
-    i = s.indexOf('*');
+    i = s.indexOf("*");
   }
   return s;
-};
+}
 
 function groupAnagrams(strs: string[]): string[][] {
   const words = new Map<string, string[]>();
   for (const str of strs) {
-    const sorted = str.split('').sort().join('');
+    const sorted = str.split("").sort().join("");
     if (words.has(sorted)) {
       words.get(sorted)?.push(str);
     } else {
@@ -765,8 +780,7 @@ function groupAnagrams(strs: string[]): string[][] {
     }
   }
   return Array.from(words.values());
-};
-
+}
 
 function strStr(haystack: string, needle: string): number {
   // find needle in haystack
@@ -782,7 +796,7 @@ function strStr(haystack: string, needle: string): number {
     }
   }
   return -1;
-};
+}
 
 // prequisites ai,bi means you need to take bi before ai
 // return true if you can finish all courses 0 to numcourses -1
@@ -818,17 +832,17 @@ function canFinish(numCourses: number, prerequisites: number[][]): boolean {
 
     canTake.add(course);
     return true;
-  }
+  };
   // visit
   for (let i = 0; i < numCourses; i++) {
-    soFar.clear()
+    soFar.clear();
     if (!dfs(i)) {
       return false;
     }
   }
 
   return canTake.size >= numCourses;
-};
+}
 
 // console.log(canFinish(2, [[1, 0]])); // true
 // console.log(canFinish(2, [[0, 1]])); // true
@@ -852,7 +866,7 @@ function validateStackSequences(pushed: number[], popped: number[]): boolean {
     }
   }
   return i === popped.length;
-};
+}
 
 // merge accounts if the have the same email (they will have the same name)
 // just because they have the same name doesn't mean they are the same accounts
@@ -897,30 +911,30 @@ function accountsMerge(accounts: string[][]): string[][] {
         if (accountIndexes) {
           for (const index of accountIndexes) {
             if (!merged.has(index)) {
-
               stack.push(index);
             }
           }
         }
       }
     }
-    const mergedAccount = [account[0], ...Array.from(emails).sort((a, b) => a > b ? 1 : -1)];
+    const mergedAccount = [
+      account[0],
+      ...Array.from(emails).sort((a, b) => (a > b ? 1 : -1)),
+    ];
     mergedAccounts.push(mergedAccount);
   }
   return mergedAccounts;
-};
+}
 
 // const accounts = [["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["John", "johnsmith@mail.com", "john00@mail.com"], ["Mary", "mary@mail.com"], ["John", "johnnybravo@mail.com"]];
 // console.log(accountsMerge(accounts));
 
-
 // weighted graph where distance is the weight
 // find the minimum spanning tree
 function minCostConnectPoints(points: number[][]): number {
-
   const calculateDistance = (a: number[], b: number[]) => {
     return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
-  }
+  };
   // sort all edges in increasing order of their edge weights
   // normally would do kruskal but we know its a full graph
   const edges = new Map<number, number[][]>();
@@ -944,14 +958,14 @@ function minCostConnectPoints(points: number[][]): number {
       parents.set(a, find(parents.get(a) || a));
     }
     return parents.get(a) || a;
-  }
+  };
   const union = (a: number, b: number) => {
     const parentA = find(a);
     const parentB = find(b);
     if (parentA !== parentB) {
       parents.set(parentA, parentB);
     }
-  }
+  };
   let cost = 0;
   for (const [distance, listOfPoints] of sortedEdges) {
     for (const points of listOfPoints) {
@@ -963,7 +977,7 @@ function minCostConnectPoints(points: number[][]): number {
     }
   }
   return cost;
-};
+}
 
 // console.log(minCostConnectPoints([[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]])); // 20
 
@@ -979,14 +993,17 @@ function minCostConnectPoints(points: number[][]): number {
  * }
  */
 class ListNode {
-  val: number
-  next: ListNode | null
+  val: number;
+  next: ListNode | null;
   constructor(val?: number, next?: ListNode | null) {
-    this.val = (val === undefined ? 0 : val)
-    this.next = (next === undefined ? null : next)
+    this.val = val === undefined ? 0 : val;
+    this.next = next === undefined ? null : next;
   }
 }
-function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
+function addTwoNumbers(
+  l1: ListNode | null,
+  l2: ListNode | null
+): ListNode | null {
   // add the two numbers together and keep the remainder
   // keep going through each index until its the next null
   // if the next index is null then add the remainder
@@ -1006,14 +1023,16 @@ function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | nul
     current.next = new ListNode(remainder);
   }
   return head.next;
-};
+}
 
 // bbbab becomes bbbb
 // reverse the string and compute the longest common subsequence
 function longestPalindromeSubseq(s: string): number {
-  const reverse = s.split('').reverse().join('');
+  const reverse = s.split("").reverse().join("");
   // dp[i][j] = longest common subsequence between s[0...i] and reverse[0...j]
-  const dp = new Array(s.length + 1).fill(0).map(() => new Array(s.length + 1).fill(0));
+  const dp = new Array(s.length + 1)
+    .fill(0)
+    .map(() => new Array(s.length + 1).fill(0));
   for (let i = 1; i <= s.length; i++) {
     for (let j = 1; j <= s.length; j++) {
       if (s[i - 1] === reverse[j - 1]) {
@@ -1024,8 +1043,7 @@ function longestPalindromeSubseq(s: string): number {
     }
   }
   return dp[s.length][s.length];
-};
-
+}
 
 /**
  * Definition for singly-linked list.
@@ -1059,14 +1077,14 @@ function swapPairs(head: ListNode | null): ListNode | null {
     }
     previous = current;
     current = current.next;
-    console.log(current)
+    console.log(current);
   }
 
   if (start === null) {
     return head;
   }
   return start;
-};
+}
 
 /**
  * Definition for singly-linked list.
@@ -1086,7 +1104,10 @@ function mergeKLists(lists: Array<ListNode | null>): ListNode | null {
   // merge the first two lists
   // merge the result with the next list
   // keep going until we have one list
-  const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null): ListNode | null => {
+  const mergeTwoLists = (
+    l1: ListNode | null,
+    l2: ListNode | null
+  ): ListNode | null => {
     let head = new ListNode();
     let current = head;
     while (l1 && l2) {
@@ -1106,7 +1127,7 @@ function mergeKLists(lists: Array<ListNode | null>): ListNode | null {
       current.next = l2;
     }
     return head.next;
-  }
+  };
 
   if (lists.length === 0) {
     return null;
@@ -1116,7 +1137,7 @@ function mergeKLists(lists: Array<ListNode | null>): ListNode | null {
     result = mergeTwoLists(result, lists[i]);
   }
   return result;
-};
+}
 
 // List is rotated to the right by k places
 // In one rotation, the last element of the list becomes the first element of the list
@@ -1139,13 +1160,12 @@ function rotateRight(head: ListNode | null, k: number): ListNode | null {
   for (let i = 0; i < length - k; i++) {
     current = newHead;
     if (newHead.next) {
-
       newHead = newHead.next;
     }
   }
   current.next = null;
   return newHead;
-};
+}
 
 // reverse k nodes at a time and return the modified list
 // if the number of nodes is not a multiple of k then left-out nodes in the end should remain as it is
@@ -1169,7 +1189,7 @@ function reverseKGroup(head: ListNode | null, k: number): ListNode | null {
       return reverse(previous, count);
     }
     return previous;
-  }
+  };
 
   let current = head;
   let count = 0;
@@ -1183,17 +1203,16 @@ function reverseKGroup(head: ListNode | null, k: number): ListNode | null {
     return newHead;
   }
   return head;
-};
-
+}
 
 class TreeNode {
-  val: number
-  left: TreeNode | null
-  right: TreeNode | null
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
-    this.val = (val === undefined ? 0 : val)
-    this.left = (left === undefined ? null : left)
-    this.right = (right === undefined ? null : right)
+    this.val = val === undefined ? 0 : val;
+    this.left = left === undefined ? null : left;
+    this.right = right === undefined ? null : right;
   }
 }
 // number of paths where the sum of the values along the path equals targetSum
@@ -1229,10 +1248,10 @@ function pathSum(root: TreeNode | null, targetSum: number): number {
     traverse(node.right, sum);
     // pop off this value
     map.set(sum, map.get(sum) - 1);
-  }
+  };
   traverse(root, 0);
   return count;
-};
+}
 
 // Given the root of a binary tree, return the maximum path sum of any path
 // A path is a sequence of nodes where any two adjacent nodes in the sequence have an edge connecting them
@@ -1258,10 +1277,10 @@ function maxPathSum(root: TreeNode | null): number {
     }
     // the largest sequence including this node is ending here, going to to my right or my left
     return node.val + Math.max(left, right, 0);
-  }
+  };
   traverse(root);
   return maxSum;
-};
+}
 
 // Piles of coins with their values from top to bottom
 // You can fill your wallet with k coins
@@ -1279,7 +1298,9 @@ function maxValueOfCoins(piles: number[][], k: number): number {
   // store the value you can take at each coin
 
   // num piles by k
-  const memoize = new Array(k + 1).fill(0).map(() => new Array(piles.length).fill(-1));
+  const memoize = new Array(k + 1)
+    .fill(0)
+    .map(() => new Array(piles.length).fill(-1));
   const traverse = (row: number, coinsLeft: number): number => {
     if (coinsLeft <= 0 || row >= piles.length) {
       return 0;
@@ -1300,7 +1321,7 @@ function maxValueOfCoins(piles: number[][], k: number): number {
     }
     memoize[coinsLeft][row] = result;
     return result;
-  }
+  };
   return traverse(0, k);
 }
 
@@ -1325,7 +1346,7 @@ function buildTree(preorder: number[], inorder: number[]): TreeNode | null {
   root.left = buildTree(leftPreorder, leftInorder);
   root.right = buildTree(rightPreorder, rightInorder);
   return root;
-};
+}
 
 // console.log(buildTree([3, 9, 20, 15, 7], [9, 3, 15, 20, 7]));
 
@@ -1357,7 +1378,7 @@ function findMinHeightTrees(n: number, edges: number[][]): number[] {
     for (let i = 0; i < leaves.length; i++) {
       const leaf = leaves[i];
       const neighbor = graph[leaf][0];
-      graph[neighbor] = graph[neighbor].filter(node => node !== leaf);
+      graph[neighbor] = graph[neighbor].filter((node) => node !== leaf);
       if (graph[neighbor].length === 1) {
         newLeaves.push(neighbor);
       }
@@ -1365,7 +1386,7 @@ function findMinHeightTrees(n: number, edges: number[][]): number[] {
     leaves = newLeaves;
   }
   return leaves;
-};
+}
 
 // find lowest common ancestor of two nodes in a binary tree
 function widthOfBinaryTree(root: TreeNode | null): number {
@@ -1384,17 +1405,20 @@ function widthOfBinaryTree(root: TreeNode | null): number {
     leaves[depth].push(BigInt(index));
     traverse(node.left, depth + 1, index * BigInt(2));
     traverse(node.right, depth + 1, index * BigInt(2) + BigInt(1));
-  }
+  };
   traverse(root, 0, BigInt(0));
   let maxWidth = BigInt(1);
   for (let i = 0; i < leaves.length; i++) {
     const leaf = leaves[i];
     if (leaf.length > 1) {
-      maxWidth = maxWidth > leaf[leaf.length - 1] - leaf[0] + BigInt(1) ? maxWidth : leaf[leaf.length - 1] - leaf[0] + BigInt(1);
+      maxWidth =
+        maxWidth > leaf[leaf.length - 1] - leaf[0] + BigInt(1)
+          ? maxWidth
+          : leaf[leaf.length - 1] - leaf[0] + BigInt(1);
     }
   }
   return Number(maxWidth);
-};
+}
 
 function numberOfPeopleOnTheBus(busStops: [number, number][]): number {
   let peopleOnTheBus = 0;
@@ -1461,7 +1485,8 @@ function pdc(fills: RxFill[], start_day: number, end_day: number): number {
     return 0;
   }
   let earliestDay = fills[0].day;
-  let lastDay = fills[fills.length - 1].day + fills[fills.length - 1].amount - 1;
+  let lastDay =
+    fills[fills.length - 1].day + fills[fills.length - 1].amount - 1;
 
   earliestDay = Math.min(earliestDay, start_day);
   lastDay = Math.max(lastDay, end_day);
@@ -1510,3 +1535,733 @@ function pdc(fills: RxFill[], start_day: number, end_day: number): number {
 // driver choosing service -> send an accept one person hits accept -> update your ride request db with accepted driver -> thing watching updates on the ride tells the driver and rider
 // driver choosing service or some other watcher tells all the drivesr who got that psn the ride is no longer available
 
+// left to right, then right to left then flip
+function zigzagLevelOrder(root: TreeNode | null): number[][] {
+  // at each depth store left to right
+  const leaves = new Array<number[]>();
+  const traverse = (
+    node: TreeNode | null,
+    depth: number,
+    leftFirst: boolean
+  ) => {
+    if (node === null) {
+      return;
+    }
+    if (leaves[depth] === undefined) {
+      leaves[depth] = [];
+    }
+    if (leftFirst) {
+      leaves[depth].push(node.val);
+    } else {
+      leaves[depth].unshift(node.val);
+    }
+    traverse(node.left, depth + 1, !leftFirst);
+    traverse(node.right, depth + 1, !leftFirst);
+  };
+  traverse(root, 0, true);
+  return leaves;
+}
+
+// k distance from node
+// could do a dfs from the target and then up to k parents, dfs to a depth for each parent
+// add once we have started searching
+function distanceK(
+  root: TreeNode | null,
+  target: TreeNode | null,
+  k: number
+): number[] {
+  const parents = new Map<TreeNode, TreeNode>();
+  const findParents = (node: TreeNode | null) => {
+    if (node === null) {
+      return;
+    }
+    if (node.left) {
+      parents.set(node.left, node);
+    }
+    if (node.right) {
+      parents.set(node.right, node);
+    }
+    findParents(node.left);
+    findParents(node.right);
+  };
+  findParents(root);
+  const seen = new Set<TreeNode>();
+  const results = new Array<number>();
+  const dfs = (node: TreeNode | null, depth: number) => {
+    if (node === null) {
+      return;
+    }
+    if (seen.has(node)) {
+      return;
+    }
+    seen.add(node);
+    if (depth === k) {
+      results.push(node.val);
+      return;
+    }
+    dfs(node.left, depth + 1);
+    dfs(node.right, depth + 1);
+    let parent = parents.get(node);
+    if (!!parent) {
+      dfs(parent, depth + 1);
+    }
+  };
+  dfs(target, 0);
+  return results;
+}
+
+// find cheapest flight with at most k stops
+// return -1 if no such flight
+function findCheapestPrice(
+  n: number,
+  flights: number[][],
+  src: number,
+  dst: number,
+  k: number
+): number {
+  // djikstras
+  // for each vertex start at infinity
+  // city to city and price
+  const prices = new Map<number, Map<number, number>>();
+  for (let i = 0; i < flights.length; i++) {
+    const [from, to, price] = flights[i];
+    if (!prices.has(from)) {
+      prices.set(from, new Map<number, number>());
+    }
+    prices.get(from)?.set(to, price);
+  }
+
+  const costs = new Array<number>(n).fill(-1);
+  // queue has index cost and stops
+  interface QueueItem {
+    index: number;
+    cost: number;
+  }
+  const queue = new Array<QueueItem>();
+  queue.push({ index: src, cost: 0 });
+  let stops = k + 1;
+  while (queue.length) {
+    if (!stops) {
+      break;
+    }
+    const len = queue.length;
+    for (let i = 0; i < len; i++) {
+      const { index, cost } = queue.shift()!;
+      for (const [to, price] of prices.get(index) ?? []) {
+        const thisCost = cost + price;
+        if (costs[to] === -1 || costs[to] > thisCost) {
+          costs[to] = thisCost;
+          queue.push({ index: to, cost: thisCost });
+        }
+      }
+    }
+    stops--;
+  }
+  return costs[dst];
+}
+// console.log(
+//   findCheapestPrice(
+//     4,
+//     [
+//       [0, 1, 1],
+//       [0, 2, 5],
+//       [1, 2, 1],
+//       [2, 3, 1],
+//     ],
+//     0,
+//     3,
+//     1
+//   )
+// );
+// console.log(
+//   findCheapestPrice(
+//     5,
+//     [
+//       [0, 1, 5],
+//       [1, 2, 5],
+//       [0, 3, 2],
+//       [3, 1, 2],
+//       [1, 4, 1],
+//       [4, 2, 1],
+//     ],
+//     0,
+//     2,
+//     2
+//   )
+// );
+// console.log(
+//   findCheapestPrice(
+//     5,
+//     [
+//       [0, 1, 1],
+//       [0, 2, 5],
+//       [1, 2, 1],
+//       [2, 3, 1],
+//       [3, 4, 1],
+//     ],
+//     0,
+//     4,
+//     2
+//   )
+// ); // 7
+// console.log(
+//   findCheapestPrice(
+//     4,
+//     [
+//       [0, 1, 100],
+//       [1, 2, 100],
+//       [2, 0, 100],
+//       [1, 3, 600],
+//       [2, 3, 200],
+//     ],
+//     0,
+//     3,
+//     1
+//   )
+// ); // 700
+
+function bfs(node: TreeNode) {
+  const queue = new Array<TreeNode>();
+  queue.push(node);
+  while (queue.length) {
+    const len = queue.length;
+    for (let i = 0; i < len; i++) {
+      const node = queue.shift()!;
+      console.log(node.val);
+      if (node.left) {
+        queue.push(node.left);
+      }
+      if (node.right) {
+        queue.push(node.right);
+      }
+    }
+  }
+}
+
+function ladderLength(
+  beginWord: string,
+  endWord: string,
+  wordList: string[]
+): number {
+  const words = new Set<string>();
+  for (const word of wordList) {
+    words.add(word);
+  }
+
+  if (!words.has(endWord)) {
+    return 0;
+  }
+  const queue = new Array<string>();
+  let chainLength = 1;
+  queue.push(beginWord);
+  let foundEnd = false;
+  while (queue.length) {
+    const len = queue.length;
+    chainLength++;
+    for (let i = 0; i < len; i++) {
+      const word = queue.shift()!;
+      for (let i = 0; i < beginWord.length; i++) {
+        for (let j = 0; j < 26; j++) {
+          let newWord =
+            word.substring(0, i) +
+            String.fromCharCode(65 + j).toLowerCase() +
+            word.substring(i + 1);
+          console.log(newWord, chainLength);
+          if (newWord === endWord) {
+            console.log("found");
+            return chainLength;
+          }
+          if (words.has(newWord)) {
+            console.log("match for" + newWord);
+            queue.push(newWord);
+            words.delete(newWord);
+          }
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+// console.log(
+//   ladderLength("ymain", "oecij", [
+//     "ymann",
+//     "yycrj",
+//     "oecij",
+//     "ymcnj",
+//     "yzcrj",
+//     "yycij",
+//     "xecij",
+//     "yecij",
+//     "ymanj",
+//     "yzcnj",
+//     "ymain",
+//   ])
+// );
+
+function numBusesToDestination(
+  routes: number[][],
+  source: number,
+  target: number
+): number {
+  // union find to get edges
+  // djikstras to get shortest number of buses
+  if (source == target) {
+    return 0;
+  }
+  // union find to build edges
+  const stopsToBus = new Map<number, number[]>();
+  for (let i = 0; i < routes.length; i++) {
+    for (const stop of routes[i]) {
+      if (!stopsToBus.has(stop)) {
+        stopsToBus.set(stop, []);
+      }
+      stopsToBus.get(stop)!.push(i);
+    }
+  }
+  const edges = new Map<number, number[]>();
+  for (const [stop, buses] of stopsToBus) {
+    for (const bus of buses) {
+      if (!edges.has(stop)) {
+        edges.set(stop, []);
+      }
+      edges.get(stop)!.push(bus);
+    }
+  }
+  const stops = new Map<number, number>();
+
+  const queue = new Array<number>();
+  queue.push(source);
+  stops.set(source, 0);
+  while (queue.length) {
+    const stop = queue.shift()!;
+    for (const bus of edges.get(stop)!) {
+      for (const nextStop of routes[bus]) {
+        if (stops.get(nextStop) === -1) {
+          stops.set(nextStop, stops.get(stop)! + 1);
+          queue.push(nextStop);
+        }
+      }
+    }
+  }
+  return stops?.get(target) || -1;
+}
+
+// console.log(
+//   numBusesToDestination(
+//     [
+//       [1, 7],
+//       [3, 5],
+//     ],
+//     5,
+//     5
+//   )
+// );
+
+// timestamps of set are stricly increasing
+// can use an array and binary search
+class TypescriptTimeMap {
+  keyTimeMap: Map<string, [{ timestamp: number; value: string }]>;
+  constructor() {
+    this.keyTimeMap = new Map();
+  }
+
+  set(key: string, value: string, timestamp: number): void {
+    if (!this.keyTimeMap.has(key)) {
+      this.keyTimeMap.set(key, [{ timestamp, value }]);
+    } else {
+      this.keyTimeMap.get(key)?.push({ timestamp, value });
+    }
+  }
+
+  private binarySearch(
+    values: [{ timestamp: number; value: string }],
+    timestamp: number
+  ) {
+    if (timestamp < values[0].timestamp) {
+      return "";
+    }
+    let left = 0;
+    let right = values.length - 1;
+    let mid = 0;
+    while (left <= right) {
+      mid = Math.floor((left + right) / 2);
+      if (values[mid].timestamp === timestamp) return values[mid].value;
+      if (timestamp > values[mid].timestamp) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+    if (values[mid].timestamp > timestamp) {
+      mid--;
+    }
+    return values[mid].value;
+  }
+  get(key: string, timestamp: number): string {
+    const values = this.keyTimeMap.get(key);
+    if (!values) return "";
+    return this.binarySearch(values, timestamp);
+  }
+}
+
+// typescript array stuff
+// pushback adds to end
+// unshift addds to front
+// shift deletes from front
+// splice can do whatever
+
+class TypescriptLRUCache {
+  capacity: number;
+  map: Map<number, number>;
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.map = new Map();
+  }
+
+  get(key: number): number {
+    const val = this.map.get(key);
+    if (val === undefined) return -1;
+    // map maintains insertion order
+    this.map.delete(key);
+    this.map.set(key, val);
+    return val;
+  }
+
+  put(key: number, value: number): void {
+    // if we are adding to a full map
+    if (this.map.size >= this.capacity && !this.map.has(key)) {
+      const firstKey = this.map.keys().next().value;
+      this.map.delete(firstKey);
+    }
+
+    this.map.delete(key);
+    this.map.set(key, value);
+  }
+}
+
+// if its a tie for frequency have to use least recently but set is ordered
+class LFUCache {
+  cache: Map<number, { frequency: number; val: number }>;
+  frequencies: Map<number, Set<number>>; //frequency to key in order
+  minF: number;
+  capacity: number;
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.minF = 0;
+    this.cache = new Map();
+    this.frequencies = new Map();
+  }
+
+  private insert(key: number, freq: number, val: number) {
+    this.cache.set(key, { frequency: freq, val: val });
+    if (!this.frequencies.has(freq)) {
+      this.frequencies.set(freq, new Set());
+    }
+    this.frequencies.get(freq)?.add(key);
+  }
+  get(key: number): number {
+    const freqAndVal = this.cache.get(key);
+    if (!freqAndVal) return -1;
+    const freq = freqAndVal.frequency;
+    const keys = this.frequencies.get(freq);
+    keys?.delete(key);
+    if (!keys?.size) {
+      this.frequencies.delete(freq);
+      if (this.minF === freq) {
+        this.minF++;
+      }
+    }
+    this.insert(key, freq + 1, freqAndVal.val);
+    return freqAndVal.val;
+  }
+
+  put(key: number, value: number): void {
+    const freqAndVal = this.cache.get(key);
+    if (!!freqAndVal) {
+      this.cache.set(key, { frequency: freqAndVal.frequency, val: value });
+      this.get(key);
+      return;
+    }
+
+    if (this.capacity == this.cache.size) {
+      // we will remove the least used
+      const keys = this.frequencies.get(this.minF);
+      // first is last
+      const keyToDelete = keys?.keys()?.next().value;
+      this.cache.delete(keyToDelete);
+      keys?.delete(keyToDelete);
+      if (!keys?.size) {
+        this.frequencies.delete(this.minF);
+      }
+    }
+    this.minF = 1;
+    this.insert(key, 1, value);
+  }
+}
+
+// keep pointer on outer edges
+// move shorter in
+function maxArea(height: number[]): number {
+  const len = height.length;
+  let left = 0,
+    right = len - 1;
+  let maxArea = 0;
+  while (right > left) {
+    const area = Math.min(height[left], height[right]) * (right - left);
+    maxArea = Math.max(maxArea, area);
+    if (height[left] <= height[right]) {
+      left++;
+    } else {
+      right--;
+    }
+  }
+  return maxArea;
+}
+
+function romanToInt(s: string): number {
+  const symbolToValue = new Map([
+    ["I", 1],
+    ["V", 5],
+    ["X", 10],
+    ["L", 50],
+    ["C", 100],
+    ["D", 500],
+    ["M", 1000],
+  ]);
+  let total = 0;
+  for (let i = 0; i < s.length; i++) {
+    const curr = symbolToValue.get(s[i]);
+    const next = symbolToValue.get(s[i + 1]);
+    if (curr && next && next > curr) {
+      total += next - curr;
+      i++;
+    } else {
+      total += curr || 0;
+    }
+  }
+  return total;
+}
+
+function dailyTemperatures(temperatures: number[]): number[] {
+  const ans = new Array<number>(temperatures.length);
+  const stack = new Array<number>();
+  for (let i = 0; i < temperatures.length; i++) {
+    if (stack.length === 0) {
+      stack.push(i);
+      continue;
+    }
+
+    while (temperatures[i] > temperatures[stack[0]] && stack.length > 0) {
+      ans[stack[0]] = i - stack[0];
+      stack.shift();
+    }
+    stack.unshift(i);
+  }
+
+  while (stack.length > 0) {
+    ans[stack[0]] = 0;
+    stack.shift();
+  }
+  return ans;
+}
+
+class MedianFinder {
+  minHeap: number[];
+  maxHeap: number[];
+  constructor() {
+    this.minHeap = [];
+    this.maxHeap = [];
+  }
+
+  addNum(num: number): void {
+    if (this.minHeap.length === 0) {
+      this.minHeap.push(num);
+      return;
+    }
+    if (num > this.minHeap[0]) {
+      this.minHeap.push(num);
+      this.minHeap.sort((a, b) => a - b);
+    } else {
+      this.maxHeap.push(num);
+      this.maxHeap.sort((a, b) => b - a);
+    }
+  }
+
+  findMedian(): number {
+    if (this.minHeap.length === this.maxHeap.length) {
+      return (this.minHeap[0] + this.maxHeap[0]) / 2;
+    } else if (this.minHeap.length > this.maxHeap.length) {
+      return this.minHeap[0];
+    } else {
+      return this.maxHeap[0];
+    }
+  }
+}
+
+// give all possible letter combinations for the numbers
+// 2-9
+// function letterCombinations(digits: string): string[] {
+//   const digitToLetters = new Map([
+//     ["2", ["a", "b", "c"]],
+//     ["3", ["d", "e", "f"]],
+//     ["4", ["g", "h", "i"]],
+//     ["5", ["j", "k", "l"]],
+//     ["6", ["m", "n", "o"]],
+//     ["7", ["p", "q", "r", "s"]],
+//     ["8", ["t", "u", "v"]],
+//     ["9", ["w", "x", "y", "z"]],
+//   ]);
+// }
+
+class RandomizedSet {
+  valToIndex: Record<number, number>;
+  vals: Array<number>;
+  constructor() {
+    this.valToIndex = {};
+    this.vals = new Array();
+  }
+
+  insert(val: number): boolean {
+    if (this.valToIndex[val] !== undefined) return false;
+    this.valToIndex[val] = this.vals.length;
+    this.vals.push(val);
+    return true;
+  }
+
+  remove(val: number): boolean {
+    if (this.valToIndex[val] === undefined) return false;
+    const index = this.valToIndex[val];
+    // swap to the back and remove so indexes are preserved
+    this.valToIndex[this.vals[this.vals.length - 1]] = index;
+    [this.vals[index], this.vals[this.vals.length - 1]] = [
+      this.vals[this.vals.length - 1],
+      this.vals[index],
+    ];
+    this.vals.pop();
+    delete this.valToIndex[val];
+    return true;
+  }
+
+  getRandom(): number {
+    const index = Math.floor(Math.random() * this.vals.length);
+    return this.vals[index];
+  }
+}
+
+/**
+ * Your RandomizedSet object will be instantiated and called as such:
+ * var obj = new RandomizedSet()
+ * var param_1 = obj.insert(val)
+ * var param_2 = obj.remove(val)
+ * var param_3 = obj.getRandom()
+ */
+
+// return list of 3 nums that sum to 0
+function threeSum(nums: number[]): number[][] {
+  nums.sort((a, b) => a - b);
+  const ans = new Array<Array<number>>();
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i === 0 || nums[i] !== nums[i - 1]) {
+      let left = i + 1,
+        right = nums.length - 1;
+      while (left < right) {
+        const sum = nums[i] + nums[left] + nums[right];
+        if (sum === 0) {
+          ans.push([nums[i], nums[left], nums[right]]);
+          while (left < right && nums[left] === nums[left + 1]) left++;
+          while (left < right && nums[right] === nums[right - 1]) right--;
+          left++;
+          right--;
+        } else if (sum < 0) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+    }
+  }
+  return ans;
+}
+
+// console.log(threeSum([-1, 0, 1, 2, -1, -4]));
+// console.log(threeSum([-2, 0, 0, 2, 2]));
+
+// given an integer array input, sort non-descending, can have equal values
+// not saying a text book sort, we know extra
+// either already sorted non-descending, or it has non-ascending tail
+// triangle, up and then down
+// run time better than n log n
+// not aha, equal values are valid conditions
+// dont have to do it in place
+
+// 5 10 15 20 20 18 10 10 4
+// k * log n
+
+function knownSort(numbers: number[]) {
+  // iterate through to determine case 1 or 2
+  // case 1 return numbers
+  // case 2 the other numbers are in non-ascending order in the tail
+  // we have to mix in the tail with the front numbers
+  let i = 0;
+  for (i; i < numbers.length; i++) {
+    if (numbers[i] > numbers[i + 1]) {
+      break;
+    }
+  }
+
+  if (i === numbers.length - 1) {
+    return numbers;
+  }
+
+  // now i have 2 lists, one descending and one ascending
+  // with a pointer at both, include the smaller one and then increment the pointer for that list
+  // if equal do both
+  // preallocate vs append
+  const ans = new Array<number>(numbers.length);
+  let left = 0,
+    right = numbers.length - 1,
+    index = 0;
+  for (index; index < numbers.length; index++) {
+    // put the smaller of the two into ans
+    if (numbers[left] <= numbers[right]) {
+      ans[index] = numbers[left];
+      left++;
+    } else {
+      ans[index] = numbers[right];
+      right--;
+    }
+  }
+  return ans;
+}
+
+// 10 10 10  3 1
+// console.log(knownSort([5, 10, 15, 20, 20, 18, 10, 10, 4]));
+
+// console.log(knownSort([4, 5, 10, 10, 10, 15, 18, 20, 20]));
+
+// for an input string/ output the number of times the a character occurs
+// 10^9
+
+// uppper and lower?
+const a = "a";
+console.log(a.charCodeAt(0));
+
+// all characters not just alphanumberic
+
+function numberOfCharacters(input: string): Map<string, number> {
+  // const ans = new Array<number>(26).fill(0);
+  // for (let i = 0; i < input.length; i++) {
+  //   ans[input.charCodeAt(i) - 97]++;
+  // }
+  // return ans;
+
+  const ans = new Map<string, number>();
+  for (let i = 0; i < input.length; i++) {
+    ans.set(input[i], (ans.get(input[i]) || 0) + 1);
+  }
+  return ans;
+}
+
+console.log(numberOfCharacters("hat"));
