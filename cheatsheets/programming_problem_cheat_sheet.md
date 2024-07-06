@@ -154,23 +154,23 @@ Consider:
 ## Graphs
 
 A graph is a set of vertices connected by edges
-DAG- directed acyclic graph is a graph with no cycles.
-Cycles - paths which contain one or more edges and which begin and end at the same vertex
-Sources- vertices which have no incoming edges
-Sinks- vertices which have no outgoing edges
-Topological ordering- is an ordering of the vertices in which each edge is from a vertex earlier in the ordering to a vertex later in the ordering
+**DAG** - directed acyclic graph is a graph with no cycles.
+**Cycles** - paths which contain one or more edges and which begin and end at the same vertex
+**Sources**- vertices which have no incoming edges
+**Sinks** - vertices which have no outgoing edges
+**Topological ordering** - is an ordering of the vertices in which each edge is from a vertex earlier in the ordering to a vertex later in the ordering
 
-Connected- a path exists between u and v
-Connected component- maximal set of vertices C such that each pair of vertices in C is a connected in G. Every vertex belongs to exactly 1 connected component
-Directed graph is weakly connected- if replacing all directed edges with undirected makes it connected
-Connected if for every u,v a u->v or v->u path exists
-Strongly connected if u->v and v->u exist
+**Connected** - a path exists between u and v
+**Connected component** - maximal set of vertices C such that each pair of vertices in C is a connected in G. Every vertex belongs to exactly 1 connected component
+**Directed graph is weakly connected** - if replacing all directed edges with undirected makes it connected
+**Connected** if for every u,v a u->v or v->u path exists
+**Strongly connected** if u->v and v->u exist
 
-Adjacency list or adjacency matrix
+**Adjacency list or adjacency matrix**
 Tree is a special sort of graph, undirected graph that is connected but has no cycles
 
 Ideal for modeling and analyzing relationships between pairs of objects
-Consider:
+**Consider:**
 • It's natural to use when the problem involves spatially connected objects.
 • Whenever you have to analyze any binary relationship. e.g. interlinked webpages followers
 • Analyzing a structure e.g. looking for cycles or connected components. DFS works well

@@ -405,6 +405,44 @@ def test_searchRotatedArray():
     assert searchRotatedArray([4,5,6,7,0,1,2], 3) == -1
     assert searchRotatedArray([1], 0) == -1
 
+# [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0
+def threeSum(nums: list[int]) -> list[list[int]]:
+    # could use Counter(nums) from collections import Counter
+    n = len(nums)
+    ans = []
+    nums.sort()
+    for i in range(n):
+        # skip dupes
+        if i != 0 and nums[i] == nums[i - 1]:
+            continue
+        j = i + 1
+        k = n - 1
+        while j < k:
+            sum = nums[i] + nums[j] + nums[k]
+            if sum < 0:
+                # need a larger number. k is already at the end so to get bigger increase j
+                j += 1
+            elif sum > 0:
+                # need a smaller number. j is already at the start so to get smaller decrease k
+                k -= 1
+            else:
+                temp = [nums[i], nums[j], nums[k]]
+                ans.append(temp)
+                j += 1
+                k -= 1
+                # ensures new value for nums[j]
+                while j < k and nums[j] == nums[j-1]:
+                    j += 1
+                while j < k and nums[k] == nums[+1]:
+                    k -= 1
+    return ans
+
+def test_threeSum():
+    assert threeSum([-1,0,1,2,-1,-4]) == [[-1,-1,2],[-1,0,1]]
+    assert threeSum([0, 1, 1]) == []
+    assert threeSum([0,0,0]) == [[0,0,0]]
+
+
 # python practice.py
 if __name__ == "__main__":
     # Arrays https://takeuforward.org/interviews/blind-75-leetcode-problems-detailed-video-solutions
@@ -418,4 +456,5 @@ if __name__ == "__main__":
     test_maxProduct()
     test_findMinRotatedSortedArray()
     test_searchRotatedArray()
+    test_threeSum()
     print("All tests passed")
