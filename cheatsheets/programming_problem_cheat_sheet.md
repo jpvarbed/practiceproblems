@@ -14,6 +14,53 @@ from sortedcontainers import SortedDict
 
 Or use binary search to find. You want the tree insert to get that nlogn.
 
+## Runtimes
+
+### Hashmap vs BST
+
+Trade-offs:
+
+- Performance: dict is faster for simple lookups and updates, while SortedDict is faster for operations that leverage the sorted nature of the keys.
+- Memory: dict typically uses less memory than SortedDict.
+- Functionality: SortedDict offers more operations related to order and ranges.
+
+Use a regular dict (hash map) when:
+
+- You need constant-time O(1) average case lookup, insertion, and deletion.
+- The order of keys doesn't matter.
+- You don't need to perform range queries or find the nearest keys.
+- Memory usage is a concern (hash maps generally use less memory than BSTs).
+- You're dealing with a large number of items and need the best average-case performance.
+
+Examples:
+
+- Caching
+- Counting occurrences (e.g., word frequency)
+- Quick key-value pair lookups
+- Implementing sets
+
+Use a SortedDict (BST) when:
+
+- You need to maintain keys in sorted order.
+- You need to perform range queries or find nearest neighbors efficiently.
+- You need to iterate over keys in sorted order.
+- You can tolerate O(log n) operations for better functionality.
+- You need to find the min/max key quickly.
+
+Examples:
+
+- Implementing a calendar or scheduling system
+- Range queries in databases
+- Maintaining a leaderboard
+  Implementing an index for a search engine
+
+Specific scenarios:
+
+- If you frequently need to find the smallest or largest key, use SortedDict (O(1) operation).
+- If you need to find the kth smallest/largest element, SortedDict is more efficient (O(log n + k)).
+- If you need to perform prefix matching or partial key searches, SortedDict is more suitable.
+- If your application involves many insertions and deletions while maintaining sorted order, SortedDict is preferable.
+
 ## Arrays
 
 Consider:
