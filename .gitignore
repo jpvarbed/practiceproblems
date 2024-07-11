@@ -193,6 +193,9 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
+# python
+venv/
+
 # SQL Server files
 *.mdf
 *.ldf

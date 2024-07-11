@@ -1,10 +1,8 @@
 import sys
-from collections import deque, defaultdict # for aircargobooker
+from collections import deque, defaultdict, Counter # for aircargobooker & alienOrder
 import heapq # for aircargobookercost
 import bisect # calendar
-# can't use for test problems but would be nice
-# pip3 install sortedcontainers
-# from sortedcontainers import SortedDict # Calendar
+from sortedcontainers import SortedDict # Calendar
 
 ## Real life problems
 
@@ -18,6 +16,8 @@ class Calendar:
     def __init__(self):
         self.events = []
         self.merged_intervals = []
+        self.merged_events = SortedDict()
+        self.events_booked = SortedDict()
 
     def _insert(self, time:int, event_type: str):
         bisect.insort(self.events, (time, event_type))
@@ -87,19 +87,65 @@ class Calendar:
     # given all at once how to improve time complexity
     # merge([[10, 20], [40, 50], [20, 30], [45, 55]]) => [[10, 30], [40, 55]]
     def mergeAtOnce(self, times: list[list[int]]) -> list[list[int]]:
-        return [[]]
+        for start, end in times:
+            if start not in self.merged_events:
+                self.merged_events[start] = end
+            else:
+                self.merged_events[start] = max(self.merged_events[start], end)
+
+        result = []
+        prev_start, prev_end = None, None
+        # Now we have a bunch of intervals with diff starting times but we haven't looked at intersection
+        # N iterations, logn insert
+        for start, end in self.merged_events.items():
+            if prev_start is None:
+                prev_start, prev_end = start, end
+            elif start <= prev_end:
+                # next interval start is within last event, merge time baby
+                prev_end = max(prev_end, end)
+            else:
+                # it's its own thing
+                result.append([prev_start, prev_end])
+                prev_start, prev_end = start, end
+
+        # we mostly leave the loop with one extra
+        if prev_start is not None:
+            result.append([prev_start, prev_end])
+
+        return result
     
     # Now you want to know how many times of a time slot is booked, so you want to return the booked times of each slot.
 
     # For example, if [10, 20) and [15, 25) are booked, the overlap is [15, 20), it is booked twice.
     # The other fragments are booked only once. So the output will be [10, 15), once, [15, 20), twice, [20, 25), once.
     #     Example:
-    # merge(10, 20) => [[10, 20, 1]]
-    # merge(40, 50) => [[10, 20, 1], [40, 50, 1]]
-    # merge(20, 30) => [[10, 30, 1], [40, 50, 1]]
-    # merge(45, 55) => [[10, 30, 1], [40, 45, 1], [45, 50, 2], [50, 55, 1]]
+    # mergeTimesBooked(10, 20) => [[10, 20, 1]]
+    # mergeTimesBooked(40, 50) => [[10, 20, 1], [40, 50, 1]]
+    # mergeTimesBooked(20, 30) => [[10, 30, 1], [40, 50, 1]]
+    # mergeTimesBooked(45, 55) => [[10, 30, 1], [40, 45, 1], [45, 50, 2], [50, 55, 1]]
+    # line sweep or interval tree
     def mergeTimesBooked(self, start: int, end: int) -> list[list[int]]:
-        return [[]]
+        # increment the count for the interval
+        self.events_booked[start] = self.events_booked.get(start, 0) + 1
+        # at this time there is one less active event
+        self.events_booked[end] = self.events_booked.get(end, 0) - 1
+        result = []
+        active_count = 0
+        prev_time = None
+        for time, change in self.events_booked.items():
+            if prev_time is not None and active_count > 0:
+                # check last result count and last result time
+                # only need to look at last result because we are going in time order
+                if result and result[-1][2] == active_count and result[-1][1] == prev_time:
+                    # extend the previous interval
+                    result[-1][1] = time
+                else:
+                    result.append([prev_time, time, active_count])
+            
+            active_count += change
+            prev_time = time
+        
+        return result
 
 def test_calendar():
     c = Calendar()
@@ -114,10 +160,20 @@ def test_calendar():
     assert c.merge(20, 30) == [[10, 30], [40, 50]]
     assert c.merge(45, 55) == [[10, 30], [40, 55]]
 
+    assert c.mergeAtOnce([[10, 20], [40, 50], [20, 30], [45, 55]]) == [[10, 30], [40, 55]]
+
+    assert c.mergeTimesBooked(10, 20) == [[10, 20, 1]]
+    assert c.mergeTimesBooked(40, 50) == [[10, 20, 1], [40, 50, 1]]
+    assert c.mergeTimesBooked(20, 30) == [[10, 30, 1], [40, 50, 1]]
+    assert c.mergeTimesBooked(45, 55) == [[10, 30, 1], [40, 45, 1], [45, 50, 2], [50, 55, 1]]
+
+
 # We’re going to be implementing a simplified air cargo booking system.
 # In the system, users can create orders, and your job is to help match them according to an inventory of flights you have access to.
-# To begin implementing our booking system, we must first determine if orders can be fulfilled. For now, each order consists of an origin and a destination.
-# Given a network of flights, create a function to determine if a booking order can be satisfied (a direct flight exists between origin and destination). How you choose to model orders, the flights, and the network is totally up to you.
+# To begin implementing our booking system,
+# we must first determine if orders can be fulfilled. For now, each order consists of an origin and a destination.
+# Given a network of flights, create a function to determine if a booking order can be satisfied (a direct flight exists between origin and destination).
+# How you choose to model orders, the flights, and the network is totally up to you.
 # Part 1: Just check direct flight
 # Part 2: find even with connections
 # part 3: find with least connections
@@ -652,7 +708,190 @@ def test_pacificAtlantic():
     heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]
     assert pacificAtlantic(heights) == [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]
     assert pacificAtlantic([[1]]) == [[0, 0]]
-    assert pacificAtlantic([[1,1], [1,1], [1,1], [1,1]]) == [[1,1]]
+    assert pacificAtlantic([[1,1], [1,1], [1,1], [1,1]]) == [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]]
+
+# prerequisites[i] = [ai, bi] must take bi before ai
+# [0, 1] means you have to take 1 before 0
+# true if you can finish, false otherwise
+# canFinish(2, [[1, 0]]) = true
+# canFinish(2, [[1, 0], [0, 1]])
+# have to reach all numCourses
+# can build an graph with adjacency list? dfs from there?
+# https://leetcode.com/problems/course-schedule/
+# adjacency list
+def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:
+    # Each course gets edges
+    adjacency_list = [[] for _ in range(numCourses)]
+    # 0, 1 0 is dest, 1 is src. can go from 1 to 0
+    for dest, src in prerequisites:
+        adjacency_list[src].append(dest)
+
+    # 0 not visited, visiting, already visitied
+    visited = [0] * numCourses
+    def dfs(course):
+        if visited[course] == 1:
+            # cycle
+            return False
+
+        if visited[course] == 2:
+            # visited and dfs'd from there. no cycle
+            return True
+        visited[course] = 1
+        
+        # visit all the neighbors
+        for neighbor in adjacency_list[course]:
+            if not dfs(neighbor):
+                return False
+
+        visited[course] = 2
+        return True
+
+    for course in range(numCourses):
+        if not dfs(course):
+            return False
+    return True
+
+def test_canFinish():
+    assert canFinish(2, [[1, 0]]) == True
+    assert canFinish(2, [[1, 0], [0, 1]]) == False
+
+# words = ["wrt","wrf","er","ett","rftt"]
+# output "wertf"
+# words = ["z","x"]
+# output "zx"
+# Input: words = ["z","x","z"]
+# ""
+# the words are ordered by not in each word
+# can never have a prefix after so abcd and ab is always wrong
+# extract the rules
+# putting the rules into a graph
+# topo sorting
+def alienOrder(words: list[str]) -> str:
+    adj_list = defaultdict(set)
+    # each unique letter to 0
+    # we iteratively remove those with no incoming
+    # Counter
+    in_degree = {c: 0 for word in words for c in word}
+
+    # zip combines multiple into one iterable
+    # looking for first difference between words
+    for first_word, second_word in zip(words, words[1:]):
+        for c, d in zip(first_word, second_word):
+            if c != d:
+                # c is before d
+                # d has an indegree now of c
+                if d not in adj_list[c]:
+                    adj_list[c].add(d)
+                    in_degree[d] += 1
+                break
+        else:  # Found no differences. Check for the prefix case
+            if len(second_word) < len(first_word): return ""
+    
+    # pick off nodes with indegree of 0
+    # bfs
+    # as you pop off then check the adj list for its neigbors.
+    # now that it has one less neighbor does it have no letters that have to be before it now?
+    output = []
+    #  Automatically provides a default value of 0 for any key that does not exist. This means you can increment a key without initializing it first.
+    queue = deque([c for c in in_degree if in_degree[c] == 0])
+    while queue:
+        c = queue.popleft()
+        output.append(c)
+        for d in adj_list[c]:
+            in_degree[d] -= 1
+            if in_degree[d] == 0:
+                queue.append(d)
+    
+    # if you hit here it's a cycle. Some letters never got added to queue b/c they were in each others adj list
+    if len(output) < len(in_degree):
+        return ""
+    return "".join(output)
+
+def test_alienOrder():
+    assert alienOrder(["wrt","wrf","er","ett","rftt"]) == "wertf"
+    assert alienOrder(["z","x"]) == "zx"
+    assert alienOrder(["z","x","z"]) == ""
+
+
+#     grid = [
+#   ["1","1","1","1","0"],
+#   ["1","1","0","1","0"],
+#   ["1","1","0","0","0"],
+#   ["0","0","0","0","0"]
+# ]
+# output 1
+# grid = [
+#   ["1","1","0","0","0"],
+#   ["1","1","0","0","0"],
+#   ["0","0","1","0","0"],
+#   ["0","0","0","1","1"]
+# ]
+# output 3
+# edges are water, find those surrounded by water
+def numIslands(grid: list[list[str]]) -> int:
+    if not grid:
+        return 0
+
+    def dfs(grid, r, c):
+        if (
+            r < 0
+            or c < 0
+            or r >= len(grid)
+            or c >= len(grid[0])
+            or grid[r][c] != "1"
+        ):
+            return
+        # the secret sauce
+        grid[r][c] = "0"
+        # now dfs all the rest of the connecting 1s/land
+        # to set to 0
+        dfs(grid, r -1, c)
+        dfs(grid, r + 1, c)
+        dfs(grid, r, c - 1)
+        dfs(grid, r, c + 1)
+
+    num_islands = 0
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == "1":
+                dfs(grid, i, j)
+                num_islands += 1
+        
+    return num_islands
+
+def test_numIslands():
+    assert numIslands([
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+    ]) == 1
+    assert numIslands([
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+    ]) == 3
+
+## Heaps
+
+# nums = [1,1,1,2,2,3], k = 2
+# LRU with k spots?
+# sort, use Counter, find k most recent?
+def topKFrequent( nums: list[int], k: int) -> list[int]:
+    if k == len(nums):
+        return nums
+    
+    count = defaultdict(int)
+    for num in nums:
+        count[num] += 1
+    # count = Counter(nums)
+    # build heap where key is count
+    # then you need to extract but can use this built in
+    return heapq.nlargest(k, count.keys(), key=count.get)
+
+def test_topKFrequent():
+    assert topKFrequent([1,1,1,2,2,3], 2) == [1, 2]
 
 # python practice.py
 if __name__ == "__main__":
@@ -673,4 +912,11 @@ if __name__ == "__main__":
     test_maxProfit()
     # Graphs
     test_pacificAtlantic()
+    test_canFinish()
+    test_alienOrder()
+    test_numIslands()
+
+    # Heap
+    test_topKFrequent()
+
     print("All tests passed")
