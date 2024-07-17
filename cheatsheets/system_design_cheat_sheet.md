@@ -1,6 +1,8 @@
-### System Design Cheat Sheet
+# System Design Cheat Sheet
 
-#### Step 1: Understand the Problem and High-Level Scope
+Don't go too deep too fast.
+
+## Step 1: Understand the Problem and High-Level Scope
 
 - **Functional Requirements:**
   - What is the core functionality?
@@ -25,7 +27,7 @@ Example Questions for Nearby Friends Feature:
 - Should location history be stored?
 - Should friends disappear after 10 minutes of inactivity?
 
-#### Step 2: Propose High-Level Design and Get Buy-In
+## Step 2: Propose High-Level Design and Get Buy-In
 
 - **API Design:**
   - REST, gRPC, GraphQL – which is suitable and why?
@@ -49,7 +51,7 @@ API Choices:
   - Flexible query mechanism.
   - Reduces over-fetching and under-fetching.
 
-#### Step 3: Design Deep Dive
+## Step 3: Design Deep Dive
 
 - **Scalability:**
   - **Database Scaling:**
@@ -74,7 +76,7 @@ API Choices:
   - Batching requests.
   - Write-ahead logs for sequential access.
 
-#### Example Detailed Design: Redis Pub/Sub System
+## Example Detailed Design: Redis Pub/Sub System
 
 - **Memory:**
   - Estimate total memory needed (e.g., 200 GB for 1 billion users, 10% active, 20 bytes per friend).
@@ -101,7 +103,7 @@ API Choices:
   - Use in-memory caches for frequently accessed data.
   - Consider cache invalidation strategies.
 
-#### Final Architecture Diagram
+## Final Architecture Diagram
 
 - Include all components:
   - API Gateway
@@ -111,6 +113,8 @@ API Choices:
   - Cache Servers
   - Service Discovery Components
   - Monitoring and Logging
+
+## DB And LB table
 
 | Requirement           | Database Choice               | Load Balancer                  | Caching Strategy          |
 | --------------------- | ----------------------------- | ------------------------------ | ------------------------- |
