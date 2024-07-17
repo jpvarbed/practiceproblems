@@ -6,6 +6,65 @@ from sortedcontainers import SortedDict # Calendar
 
 ## Real life problems
 
+## dialerpad
+# DICT = {
+#   '1' => ['a', 'b'],
+#   '2' => ['c', 'd']
+# }
+class DialerPad:
+    def __init__(self, dictionary):
+        self.dict = dictionary
+
+    # keys are one digit
+    def get_words(self, nums: str) -> list[str]:
+        words = ['']
+        for digit in nums:
+            possible_letters = self.dict[digit]
+            next_words = []
+            for l in possible_letters:
+                for word in words:
+                    next_words.append(word + l)
+            words = next_words
+        return words
+    # keys are multi char
+    # recursive
+    def get_words_long_keys(self, nums: str) -> list[str]:
+        all_words = []
+        if len(nums) == 0: return ['']
+        # iterate through slices as prefixes
+        # get entire string in the slice
+        for split in range(len(nums) + 1):
+            # check for prefix
+            if nums[:split] in self.dict:
+                possible_letters = self.dict[nums[:split]]
+                suffixes = self.get_words_long_keys(nums[split:])
+                words = []
+                for l in possible_letters:
+                    for suffix in suffixes:
+                        words.append(l + suffix)
+                all_words += words
+        return all_words
+
+def test_DialerPad():
+    DICT = {
+        '1': ['a', 'b'],
+        '2': ['c', 'd'],
+    }
+    dialer = DialerPad(DICT)
+    assert dialer.get_words('') == ['']
+    assert dialer.get_words("1") == ['a', 'b']
+    assert dialer.get_words("12") == ['ac', 'bc', 'ad', "bd"]
+    assert dialer.get_words("122") == ["acc", 'bcc', 'adc', 'bdc', 'acd', 'bcd', 'add', 'bdd']
+    LONG_DICT = {
+        '1': ['a', 'b'],
+        '2': ['c', 'd'],
+        '12': ['x'],
+        '22': ['y'],
+    }
+    fancy_dialer = DialerPad(LONG_DICT)
+    assert fancy_dialer.get_words_long_keys('12') == ['ac', 'ad', 'bc', 'bd', 'x']
+    assert fancy_dialer.get_words_long_keys('122') == ['acc', 'acd', 'adc', 'add', 'ay', 'bcc', 'bcd', 'bdc', 'bdd', 'by', 'xc', 'xd']
+                                       
 ## Calendar
 
 # We’re going to be implementing a simplified calendar reservation product.
@@ -771,6 +830,7 @@ def alienOrder(words: list[str]) -> str:
     # each unique letter to 0
     # we iteratively remove those with no incoming
     # Counter
+    # fill with 0s
     in_degree = {c: 0 for word in words for c in word}
 
     # zip combines multiple into one iterable
@@ -892,6 +952,147 @@ def topKFrequent( nums: list[int], k: int) -> list[int]:
 
 def test_topKFrequent():
     assert topKFrequent([1,1,1,2,2,3], 2) == [1, 2]
+## String
+
+# s = "abcabcbb" 3
+# s = "bbbbbb" 1
+# s = "dvdf" 3
+# s = "asjrgapa" 6
+# move in each side while theres no repeat.
+def lengthOfLongestSubstring(s: str) -> int:
+    chars = Counter()
+
+    left = right = 0
+    res = 0
+    while right < len(s):
+        r = s[right]
+        chars[r] += 1
+
+        while chars[r] > 1:
+            l = s[left]
+            chars[l] -= 1
+            left += 1
+        res = max(res, right - left + 1)
+
+        right += 1
+    return res
+
+def test_lengthOfLongestSubstring():
+    assert lengthOfLongestSubstring("abcabcbb") == 3
+    assert lengthOfLongestSubstring("bbbbb") == 1
+    assert lengthOfLongestSubstring("dvdf") == 3
+    assert lengthOfLongestSubstring("asjrgapa") == 6
+
+# s = "ABAB" k = 2 4. Replace two As with Bs
+# s = "AABABBA" k = 1 output 4
+# Can change any character of the string and change it to any other
+# can perform it at most k times
+# longest subsstring containg the same letter
+# O(n)
+def characterReplacement(s: str, k: int) -> int:
+    start = 0
+    frequency_map = {}
+    max_freq = 0
+    longest_substring_length = 0
+    for end in range(len(s)):
+        frequency_map[s[end]] = frequency_map.get(s[end], 0) + 1
+
+        max_freq = max(max_freq, frequency_map[s[end]])
+        # move the start pointer towards right if current window invalid
+        is_valid = (end + 1 - start - max_freq <= k)
+        if not is_valid:
+            frequency_map[s[start]] -= 1
+            start += 1
+        
+        # window is valid now
+        longest_substring_length = end + 1 - start
+    return longest_substring_length
+
+def test_characterReplacement():
+    assert characterReplacement("ABAB", 2) == 4
+    assert characterReplacement("AABABBA", 1) == 4
+
+# strs = ["eat","tea","tan","ate","nat","bat"]
+# [["bat"],["nat","tan"],["ate","eat","tea"]]
+# [""] [[""]]
+# strs = ["a"] [["a"]]
+# strs = ["aab", "aba", "baa", "abbccc"]
+# words can have repeat letters so can't just hash by letter
+# could sort each word. can have tuple but not a list as key
+# tuple(sorted(s)).append(s) O(NKlogK) because you have to sort. K is longest string
+# hash tuples
+def groupAnagrams(strs: list[str]) -> list[list[str]]:
+    ans = defaultdict(list)
+    for s in strs:
+        count = [0] * 26
+        for c in s:
+            # ord is the unicode point
+            count[ord(c) - ord('a')] += 1
+        # count for each letter. python hashes for us. yay python
+        ans[tuple(count)].append(s)
+    return list(ans.values())
+
+def test_groupAnagrams():
+    assert groupAnagrams(["eat","tea","tan","ate","nat","bat"]) == [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]
+    assert groupAnagrams(['']) == [['']]
+    assert groupAnagrams(['a']) == [['a']]
+    groupAnagrams(['aab', 'aba', 'baa', 'abbccc']) == [['aab', 'aba', 'baa'], ['abbccc']]
+
+
+# no stack in python so gotta add your own
+def isOperatorValid(s: str) -> bool:
+    stack = []
+    mapping = {")": "(", "}": "{", "]": "["}
+
+    for char in s:
+        if char in mapping:
+            top = stack.pop() if stack else "#"
+            if mapping[char] != top:
+                return False
+        else:
+            stack.append(char)
+            
+    return not stack
+
+def test_isOperatorValid():
+    isOperatorValid("()") == True
+    isOperatorValid("()[]{}") == True
+
+# s = 'abc'
+# output = 3
+# s = 'aaa'
+# 6
+# how can we reuse palindrome calculation
+# if "aba" is palindrome is "xabax"
+def countSubStrings(s: str) -> int:
+    n = len(s)
+    ans = 0
+    if n == 0:
+        return 0
+    # nested for loops, list comprehension
+    dp = [[False for _ in range(n)] for _ in range(n)]
+
+    # single letter
+    for i in range(n):
+        ans += 1
+        dp[i][i] = True
+
+    for i in range(n - 1):
+        dp[i][i+1] = s[i] == s[i + 1]
+        ans += dp[i][i+1]
+
+    # 3 to nested
+    # for each length check if those letters match on the ends
+    for length in range(3, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            dp[i][j] = dp[i + 1][j - 1] and (s[i] == s[j])
+            ans += dp[i][j]
+    return ans
+
+def test_countSubStrings():
+    assert countSubStrings('aaa') == 6
+    assert countSubStrings('abc') == 3
 
 # python practice.py
 if __name__ == "__main__":
@@ -899,6 +1100,7 @@ if __name__ == "__main__":
     test_aircargobooker()
     test_aircargobookercost()
     test_calendar()
+    test_DialerPad()
     # Arrays https://takeuforward.org/interviews/blind-75-leetcode-problems-detailed-video-solutions
     test_twoSum()
     test_containsDuplicate()
@@ -919,4 +1121,10 @@ if __name__ == "__main__":
     # Heap
     test_topKFrequent()
 
+    # Strings
+    test_lengthOfLongestSubstring()
+    test_characterReplacement()
+    test_groupAnagrams()
+    test_isOperatorValid()
+    test_countSubStrings()
     print("All tests passed")
