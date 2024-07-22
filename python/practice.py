@@ -3,8 +3,125 @@ from collections import deque, defaultdict, Counter # for aircargobooker & alien
 import heapq # for aircargobookercost
 import bisect # calendar
 from sortedcontainers import SortedDict # Calendar
+import json # timesheet
+from datetime import datetime, timedelta
+import os #filestore
+import shutil
 
 ## Real life problems
+class TimesheetManagementSystem:
+    def __init__(self):
+        self.workers = {}
+        self.timesheets = {}
+
+    def add_worker(self, worker_id, name):
+        self.workers[worker_id] = name
+        self.timesheets[worker_id] = []
+
+    def clock_in(self, worker_id):
+        if worker_id not in self.workers:
+            raise ValueError("Worker not found")
+        self.timesheets[worker_id].append({"clock_in": datetime.now(), "clock_out": None})
+
+    def clock_out(self, worker_id):
+        if worker_id not in self.workers:
+            raise ValueError("Worker not found")
+        if not self.timesheets[worker_id] or self.timesheets[worker_id][-1]["clock_out"]:
+            raise ValueError("No active clock-in found")
+        self.timesheets[worker_id][-1]["clock_out"] = datetime.now()
+
+    def get_timesheet(self, worker_id, start_date, end_date):
+        if worker_id not in self.workers:
+            raise ValueError("Worker not found")
+        return [entry for entry in self.timesheets[worker_id] if start_date <= entry["clock_in"].date() <= end_date]
+
+    def calculate_hours(self, worker_id, start_date, end_date):
+        timesheet = self.get_timesheet(worker_id, start_date, end_date)
+        total_hours = sum((entry["clock_out"] - entry["clock_in"]).total_seconds() / 3600 for entry in timesheet if entry["clock_out"])
+        return round(total_hours, 2)
+
+    def generate_report(self, start_date, end_date):
+        report = {}
+        for worker_id, name in self.workers.items():
+            hours = self.calculate_hours(worker_id, start_date, end_date)
+            report[worker_id] = {"name": name, "hours": hours}
+        return report
+
+    def save_data(self, filename):
+        data = {
+            "workers": self.workers,
+            "timesheets": {worker_id: [{"clock_in": entry["clock_in"].isoformat(), "clock_out": entry["clock_out"].isoformat() if entry["clock_out"] else None} for entry in timesheet]
+                           for worker_id, timesheet in self.timesheets.items()}
+        }
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+
+    def load_data(self, filename):
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        self.workers = data["workers"]
+        self.timesheets = {worker_id: [{"clock_in": datetime.fromisoformat(entry["clock_in"]), 
+                                        "clock_out": datetime.fromisoformat(entry["clock_out"]) if entry["clock_out"] else None} 
+                                       for entry in timesheet]
+                           for worker_id, timesheet in data["timesheets"].items()}
+
+def test_TimesheetManagementSystem():
+    tms = TimesheetManagementSystem()
+    tms.add_worker("001", "John Doe")
+    tms.clock_in("001")
+    tms.clock_out("001")
+    start_date = datetime.now().date() - timedelta(days=7)
+    end_date = datetime.now().date()
+    #print(tms.calculate_hours("001", start_date, end_date))
+    #print(tms.generate_report(start_date, end_date))
+    tms.save_data("timesheet_data.json")
+    tms.load_data("timesheet_data.json")
+
+class FileStore:
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        if not os.path.exists(root_dir):
+            os.makedirs(root_dir)
+
+    def set(self, file_name, content):
+        file_path = os.path.join(self.root_dir, file_name)
+        with open(file_path, 'w') as f:
+            f.write(content)
+
+    def get(self, file_name):
+        file_path = os.path.join(self.root_dir, file_name)
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                return f.read()
+        return None
+
+    def filter(self, extension=None, size=None):
+        filtered_files = []
+        for file in os.listdir(self.root_dir):
+            file_path = os.path.join(self.root_dir, file)
+            if extension and not file.endswith(extension):
+                continue
+            if size and os.path.getsize(file_path) > size:
+                continue
+            filtered_files.append(file)
+        return filtered_files
+
+    def backup(self, backup_dir):
+        backup_path = os.path.join(backup_dir, f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        shutil.copytree(self.root_dir, backup_path)
+        return backup_path
+
+    def restore(self, backup_path):
+        shutil.rmtree(self.root_dir)
+        shutil.copytree(backup_path, self.root_dir)
+
+def test_FileStore():
+    file_store = FileStore("./file_store")
+    file_store.set("example.txt", "Hello, World!")
+    #print(file_store.get("example.txt"))
+    #print(file_store.filter(extension=".txt"))
+    backup_path = file_store.backup("./backups")
+    file_store.restore(backup_path)
 
 ## dialerpad
 # DICT = {
@@ -1094,13 +1211,565 @@ def test_countSubStrings():
     assert countSubStrings('aaa') == 6
     assert countSubStrings('abc') == 3
 
+# interview bit
+# @param A : tuple of integers
+# @param B : tuple of integers
+# @return an integer
+# greedy algorithm means can know best at each step
+# https://www.interviewbit.com/problems/gas-station/
+def canCompleteCircuit(A: int, B: int) -> int:
+    if sum(A) < sum(B):
+        return -1
+        
+    total_gas = 0
+    current_gas = 0
+    start_index = 0
+    for i in range(len(A)):
+        total_gas += A[i] - B[i]
+        current_gas += A[i] - B[i]
+        if current_gas < 0:
+            start_index = i + 1
+            current_gas = 0
+    return start_index if total_gas >= 0 else -1
+
+def test_canCompleteCircuit():
+    assert canCompleteCircuit([1,2], [2,1]) == 1
+
+
+class ListNode:
+	def __init__(self, x):
+		self.val = x
+		self.next = None
+
+# @param A : head node of linked list
+# @param B : head node of linked list
+# @return the head node in the linked list
+# stored in reverse order
+# 2->4->3 + 5 6 4
+# 342 + 465 = 807
+# output 7 -> 0 -> 8 not 7 0 8 0
+# first is my implementation and then second is the faster one from chatgpt
+# https://www.interviewbit.com/problems/add-two-numbers-as-lists/
+def addTwoNumbers(A: ListNode, B: ListNode) -> ListNode:
+    # numA = 0
+    # numB = 0
+    # def countList(num: ListNode) -> int:
+    # 	result = 0
+    # 	mult = 1
+    # 	while num is not None:
+    # 		result += num.val * mult
+    # 		mult *= 10
+    # 		num = num.next
+    # 	return result
+        
+    # numToReturn = countList(A) + countList(B)
+    
+    # result = ListNode(numToReturn % 10)
+    # cur_node = result
+    # numToReturn //= 10
+    # while numToReturn > 0:
+    # 	nextNum = numToReturn % 10
+    # 	next_node = ListNode(nextNum)
+    # 	cur_node.next = next_node
+    # 	cur_node = next_node
+    # 	numToReturn //= 10
+
+    # return result
+    dummy = ListNode(0)
+    current = dummy
+    carry = 0
+    
+    while A is not None or B is not None or carry != 0:
+        sum = carry
+        if A is not None:
+            sum += A.val
+            A = A.next
+        if B is not None:
+            sum += B.val
+            B = B.next
+        
+        carry = sum // 10
+        current.next = ListNode(sum % 10)
+        current = current.next
+    
+    return dummy.next
+
+def test_addTwoNumbers():
+    A = ListNode(2)
+    A.next = ListNode(4)
+    A.next.next = ListNode(3)
+
+    B = ListNode(5)
+    B.next = ListNode(6)
+    B.next.next = ListNode(4)
+    assert addTwoNumbers(A, B).val == 7
+
+
+# @param A : list of list of integers
+# @return the same list modified
+# NxN
+# turn row into column
+# https://www.interviewbit.com/problems/rotate-matrix/
+def rotateArray(A: list[list[int]]) -> list[list[int]]:
+    N = len(A)
+    # i is row
+    for i in range(N):
+        # j is column. swap starting from diagonal
+        for j in range(i, N):
+            A[i][j], A[j][i] = A[j][i], A[i][j]
+    for i in range(N):
+        A[i].reverse()
+    return A
+
+def test_rotateArray():
+    matrix1 = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+    ]
+    expected1 = [
+        [7, 4, 1],
+        [8, 5, 2],
+        [9, 6, 3]
+    ]
+    result1 = rotateArray(matrix1)
+    assert result1 == expected1, f"Test case 1 failed: {result1}"
+
+# https://www.interviewbit.com/problems/diffk-ii/
+def diffPossible(A: list[int], B: int):
+        numMap = set()
+        n = len(A)
+        for i in range(n):
+            if A[i] - B in numMap or B + A[i] in numMap:
+                return 1
+            numMap.add(A[i])
+        return 0
+
+def test_diffPossible():
+    assert diffPossible([1, 5, 3], 2) == 1
+    assert diffPossible([2, 4, 3], 3) == 0
+
+# @param A : integer
+# @return a list of strings
+# sorted list of all possible parenthesis
+# for each set add () and then inside
+# ()
+# ()() (())
+# ()()() (())() (())() ()(()) ((()))
+def generateParenthesis(A: int):
+    if A == 0:
+        return [""]
+    if A == 1:
+        return ["()"]
+    
+    result = set()
+    for s in generateParenthesis(A - 1):
+        for i in range(len(s)):
+            if s[i] == '(':
+                #including ith character
+                result.add(s[:i + 1] + "()" + s[i + 1:])
+        result.add("()" + s)
+    return sorted(result)
+    # result = []
+    # stack = [("(", 1, 0)]  # (current_string, open_count, close_count)
+        
+    #     while stack:
+    #         current, open_count, close_count = stack.pop()
+            
+    #         if open_count == A and close_count == A:
+    #             result.append(current)
+            
+    #         if open_count < A:
+    #             stack.append((current + "(", open_count + 1, close_count))
+            
+    #         if close_count < open_count:
+    #             stack.append((current + ")", open_count, close_count + 1))
+        
+    #     return sorted(result)
+def test_generateParenthesis():
+    assert generateParenthesis(3) == [ "((()))", "(()())", "(())()", "()(())", "()()()" ]
+
+# @param A : root node of tree
+# @param B : integer
+# @param C : integer
+# @return an integer
+# has both v and w as descendants
+# no guarantee they exist
+# no dupe values
+# dfs and then??
+# least common ancestor
+# https://www.interviewbit.com/problems/least-common-ancestor/discussion/p/extra-find-functions-before-you-call-actual-lca-logic-is-required-for-this-question/348642/802/
+class TreeNode:
+	def __init__(self, x):
+		self.val = x
+		self.left = None
+		self.right = None
+
+def lca(A, B, C):
+    def dfs(node):
+        if node is None:
+            return None
+        if node.val == B or node.val == C:
+            return node
+        
+        left_lca = dfs(node.left)
+        right_lca = dfs(node.right)
+        
+        if left_lca and right_lca:
+            return node
+        
+        return left_lca if left_lca else right_lca
+    
+    def exists(node, val):
+        if node is None:
+            return False
+        if node.val == val:
+            return True
+        return exists(node.left, val) or exists(node.right, val)
+    
+    if not exists(A, B) or not exists(A, C):
+        return -1
+    
+    lca_node = dfs(A)
+    if lca_node:
+        return lca_node.val
+    return -1
+
+def test_lca():
+    root = TreeNode(3)
+    root.left = TreeNode(5)
+    root.right = TreeNode(1)
+    root.left.left = TreeNode(6)
+    root.left.right = TreeNode(2)
+    root.right.left = TreeNode(0)
+    root.right.right = TreeNode(8)
+    root.left.right.left = TreeNode(7)
+    root.left.right.right = TreeNode(4)
+        
+    assert lca(root, 5, 1) == 3
+
+# @param A : integer
+# @return a strings
+# 3999 >= A >= 1
+def intToRoman(A: int) -> str:
+    result = ""
+    values = [
+        (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
+        (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
+        (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')
+    ]
+    
+    for value, numeral in values:
+        while A >= value:
+            A -= value
+            result += numeral
+    
+    return result
+
+def test_intToRoman():
+    assert intToRoman(14) == "XIV"
+
+# @param A : list of integers
+# @return A after the sort
+# 0 1 2 are red white blue
+# order read white blue so 0 first then 1 then 2
+# could count them and then just spit it out
+# https://www.interviewbit.com/problems/sort-by-color/
+def sortColors(A: list[int]) -> list[int]:
+    low, mid, high = 0, 0, len(A) - 1
+    while mid <= high:
+        if A[mid] == 0:
+            # swap to low
+            A[low], A[mid] = A[mid], A[low]
+            low += 1
+            mid += 1
+        elif A[mid] == 1:
+            mid += 1
+        else:
+            A[mid], A[high] = A[high], A[mid]
+            high -= 1
+    return A
+
+def test_sortColors():
+    assert sortColors([0, 1, 2, 0, 1, 2]) == [0, 0, 1, 1, 2, 2]
+
+# @param A : root node of tree
+# @return an integer
+# max depth of binary tree
+# dfs and keep track of depth?
+# https://www.interviewbit.com/problems/max-depth-of-binary-tree/
+def maxDepth(A):
+    def dfs(A):
+        if A is None:
+            return 0
+        return 1 + max(dfs(A.left), dfs(A.right))
+    return dfs(A)
+
+def test_maxDepth():
+    node = TreeNode(1)
+    # Create a binary tree:
+    #      1
+    #     / \
+    #    2   3
+    #   / \   \
+    #  4   5   6
+    node = TreeNode(1)
+    node.left = TreeNode(2)
+    node.right = TreeNode(3)
+    node.left.left = TreeNode(4)
+    node.left.right = TreeNode(5)
+    node.right.right = TreeNode(6)
+    
+    assert maxDepth(node) == 3
+     
+# @param A : list of integers
+# @param B : integer
+# @return an integer
+# A array size of N. b is integer target of sum
+# do twosum for each
+# get closest to B. not necessarily equal
+# https://www.interviewbit.com/problems/3-sum/
+def threeSumClosest(A: list[int], B: int) -> int:
+    A.sort()
+    n = len(A)
+    closest_sum = float('inf')
+
+    # O(n^2) is kinda weak sauce
+    # but you do have to do all the comparisons
+    for i in range(n-2):
+        left, right = i + 1, n -1
+        while left < right:
+            current_sum = A[i] + A[left] + A[right]
+            if abs(current_sum - B) < abs(closest_sum - B):
+                closest_sum = current_sum
+                
+            if current_sum < B:
+                left += 1
+            elif current_sum > B:
+                right -= 1
+            else:
+                return closest_sum
+    return closest_sum
+
+def test_threeSumClosest():
+    A = [-1, 2, 1, -4]
+    B = 1
+    assert threeSumClosest(A, B) == 2
+
+
+# LRU least recently used cache
+# some capacity N
+# get(key)
+# put(key, value)
+# total order of last used.
+# keep sort order but always inserting at the front
+# find the thing that is was just used and put that at the front. random access
+# oldest is just the front 
+# list, array or linked list. store pointer to the list element and update that
+# map to get O(1) key -> value, list to get ordering, map has key -> list node to update in O(1)
+class LRUNode:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+# will have any problems with key 0 in the head
+class LRU:
+    def __init__(self, capacity):
+        self.cap = capacity
+        self.cache = {} # key -> node
+        # useful to always have the front and back pointers
+        # for access
+        self.head = LRUNode(0, 0)
+        self.tail = LRUNode(0, 0)
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _remove(self, node):
+        # update all the pointers to skip this one
+        prev = node.prev
+        next = node.next
+        # make the prev and next look at eachother instead of node
+        prev.next = next
+        next.prev = prev
+
+    def _add(self, node):
+        # put it in the list right after head
+        # update the head, node and next pts to each other
+        # next is current 'first'
+        # slide in between head and current next
+        next = self.head.next
+        self.head.next = node
+        node.prev = self.head
+        node.next = next
+        next.prev = node
+        
+    # get item if there, update LRU calculation
+    # O(1) check, remove O(1), add O(1) O(1)
+    def get(self, key: int) -> int:
+        if key in self.cache:
+            node = self.cache[key]
+            # move to front
+            self._remove(node)
+            self._add(node)
+            return node.value
+        return -1
+    
+    # store item, update LRU calculation
+    # remove, add, remove, delete, insert into hash map O(1) O(1)
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self._remove(self.cache[key])
+        node = LRUNode(key, value)
+        self._add(node)
+        self.cache[key] = node
+        # check capacity and remove least recent
+        if len(self.cache) > self.cap:
+            lru = self.tail.prev
+            self._remove(node)
+            del self.cache[lru.key]
+        return None
+
+def test_LRU():
+    cache = LRU(2)
+    # check for key 0
+    assert cache.get(0) == -1
+    cache.put(1,1)
+    cache.put(2,2)
+    assert cache.get(1) == 1
+    cache.put(3,3)
+    assert cache.get(2) == -1
+
+# computes the number of trailing zeros in n!
+# trailing zeros
+# 1! = 1
+# 2! = 2
+# 3! = 6
+# 4! = 24
+# 5! = 120
+# 6! = 720
+# 7! = 5040
+# 8! = 40320
+# 9! = 362880
+# 10! = 3628800
+# is there some trick to
+def countZerosInNFact(n: int) -> int:
+    # compute factorial, get the number of zeros
+    # O(N) factorials
+    def factorial(n):
+        if n == 0 or n == 1:
+            return 1
+        else:
+            return n * factorial(n - 1)
+    fact_result = factorial(n)
+    # get trailing zeros
+    # go from 1 to log10(result), while % 10 == 0 count ++, stop when not zero
+    result = 0
+    # result of the factorial is log(N)
+    while fact_result > 1:
+        if fact_result % 10 == 0:
+            result += 1
+            fact_result //= 10
+        else:
+            break
+    return result
+
+# can we do this without calculating the factorial
+# when can you end in a zero. for every 10 you end up with a zero. when you had an even and a 5
+# for every 5 and 10 you get a zero
+# for n, how many times would you multiply by 10 and how many times would you multiply by 5
+# more 2s factors of 5s are the limiting factor. 
+# every divisible by 5 is a 0. always a matching 2 for that 5
+# number of 5 factors in 25 is 2
+# O(log5(N))
+def countZerosInNFactClever(n: int) -> int:
+    result = 0
+    # result of the factorial is log10 logN ~ N
+    while n > 0:
+        n //= 5
+        result += n
+    return result
+
+def test_countZerosInNFact():
+    assert countZerosInNFact(1) == 0
+    assert countZerosInNFactClever(100) == 24
+
+# 10! 0 -> 10 how many of those have at least one 5 factor in them
+# 5 - 1
+# 10 - 2 (10 & 5)
+# 15 - (15, 10, 5) 3
+# 20 - 4 (20, 15, 10, 5) 4
+# 25 - 6 (25 - 2, 20, 15, 10, 5) 25 /25 = 1*2 =2 25 / 5= 5 -1
+# 25 / 5 = 5 with single factor
+# 25 / 25 = 1 with double factor
+# 75 / 5 = 25 with single factor
+# 75 / 25 = 3 with double factor + 1
+# 625 / 5 = 125
+# 625 / 25 = 25
+# 625 / 125 = 5
+# 625 / 625 = 1
+# 125 + 25 + 5 + 1
+# 0 -n 25, 75, 50, multiples of 25, then its powers of 5 //
+# 75 75 /25 = 3 * 2. divide our n by 5. get first order
+# 75 / 5 = 25
+# log5(N) = max power of 5
+# for that power of 5 to 1 divide to get the number of factors
+# the factors are the power * the remainder
+def numberOfFactorialMembersFactorFive(n: int) -> int:
+    result = 0
+    i = 5
+    while n >= i:
+        result += n // i
+        i *= 5
+    return result
+
+def test_numberOfFactorialMembersFactorFive():
+    assert numberOfFactorialMembersFactorFive(3) == 0
+    assert numberOfFactorialMembersFactorFive(625) == 156
+
+# Syntax: Generator expressions use parentheses () instead of square brackets [].
+# Lazy Evaluation: They generate values on-the-fly, only when needed.
+# Memory Efficiency: They don't store all values in memory at once.
+# Single-Use Iteration: Once exhausted, they can't be reused without recreation.
+def test_generatorExpressions():
+    # generator is a separate object than a list. its like an iterator but the memory isnt allocated yet
+    # (map_fcn for var in range <optional condition>)
+    squares = (x**2 for x in range(1, 11))
+    print(list(squares))  # Convert to list to see all values
+
+    even_numbers = (x for x in range(1, 21) if x % 2 == 0)
+    print(list(even_numbers))
+
+    words = ['hello', 'world', 'python', 'generator']
+    uppercase_words = (words.upper() for word in words)
+    print(list(uppercase_words))
+
+    my_dict = {'a': 1, 'b': 7, 'c': 3, 'd': 12, 'e': 5}
+    filtered_keys = (key for key, value in my_dict.items() if value > 5)
+    print(list(filtered_keys))
+
+    nested_list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    flattened = (item for sublist in nested_list for item in sublist)
+    print(list(flattened))
+
+    with open('example.txt', 'r') as file:
+        lines_with_python = (line.strip() for line in file if 'python' in line.lower())
+        for line in lines_with_python:
+            print(line)
+
+
 # python practice.py
 if __name__ == "__main__":
+    test_FileStore()
+    test_TimesheetManagementSystem()
     test_Spreadsheet()
     test_aircargobooker()
     test_aircargobookercost()
     test_calendar()
     test_DialerPad()
+
+    #test_generatorExpressions()
     # Arrays https://takeuforward.org/interviews/blind-75-leetcode-problems-detailed-video-solutions
     test_twoSum()
     test_containsDuplicate()
@@ -1127,4 +1796,20 @@ if __name__ == "__main__":
     test_groupAnagrams()
     test_isOperatorValid()
     test_countSubStrings()
+
+    # interview bit
+    test_canCompleteCircuit()
+    test_addTwoNumbers()
+    test_rotateArray()
+    test_diffPossible()
+    test_generateParenthesis()
+    test_intToRoman()
+    test_sortColors()
+    test_maxDepth()
+    test_threeSumClosest()
+
+    # practice
+    test_LRU()
+    test_countZerosInNFact()
+    test_numberOfFactorialMembersFactorFive()
     print("All tests passed")
