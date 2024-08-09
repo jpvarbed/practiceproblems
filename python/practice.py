@@ -7,6 +7,7 @@ import json # timesheet
 from datetime import datetime, timedelta
 import os #filestore
 import shutil
+from heapq import heappush, heappop
 
 ## Real life problems
 class TimesheetManagementSystem:
@@ -402,6 +403,7 @@ def test_aircargobooker():
     assert b.canSupportOrder(("LAX", "JFK")) == ["LAX", "SFO", "ORD", "JFK"]
     assert b.canSupportOrder(("JFK", "SFO")) == False
 
+# priority queue. heapq mini ue
 class AirCargoBookerCost:
     def __init__(self):
         # Graph adjacency list where key is an airport and value is a list of tuples (destination, cost)
@@ -835,6 +837,7 @@ def test_maxProfit():
 # output [[0, 0]]
 # could build a graph and then dfs for route?
 # https://leetcode.com/problems/pacific-atlantic-water-flow/
+# check each direction in grid
 def pacificAtlantic(heights: list[list[int]]) -> list[list[int]]:
     if not heights:
         return []
@@ -895,6 +898,7 @@ def test_pacificAtlantic():
 # can build an graph with adjacency list? dfs from there?
 # https://leetcode.com/problems/course-schedule/
 # adjacency list
+# build graph and dfs
 def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:
     # Each course gets edges
     adjacency_list = [[] for _ in range(numCourses)]
@@ -941,7 +945,7 @@ def test_canFinish():
 # can never have a prefix after so abcd and ab is always wrong
 # extract the rules
 # putting the rules into a graph
-# topo sorting
+# topological sorting
 def alienOrder(words: list[str]) -> str:
     adj_list = defaultdict(set)
     # each unique letter to 0
@@ -1181,6 +1185,7 @@ def test_isOperatorValid():
 # 6
 # how can we reuse palindrome calculation
 # if "aba" is palindrome is "xabax"
+# dynamic programming
 def countSubStrings(s: str) -> int:
     n = len(s)
     ans = 0
@@ -1557,6 +1562,98 @@ def test_threeSumClosest():
     assert threeSumClosest(A, B) == 2
 
 
+# @param A : list of integers
+# @return a list of list of integers
+# all permutations. integer array of size N
+# 2-d array all possible unique permutations
+# numbers might contain duplicates
+# https://www.interviewbit.com/problems/all-unique-permutations/
+def permute(A: list[int]) -> list[list[int]]:
+    def backtrack(start):
+        if start == len(A):
+            result.append(A[:])
+            return
+        seen = set()
+        for i in range(start, len(A)):
+            if A[i] not in seen:
+                seen.add(A[i])
+                # put cur element at start and backtrack
+                A[start], A[i] = A[i], A[start]
+                backtrack(start + 1)
+                A[start], A[i] = A[i], A[start]
+    result = []
+    # get dupes together
+    A.sort()
+    backtrack(0)
+    return result
+
+def test_permute():
+    assert permute([1, 1, 2]) == [[1, 1, 2], [1, 2, 1], [2, 1, 1]]
+
+# @param A : list of integers
+# @param B : integer
+# @return a list of list of integers
+# elements must be in non-descending order
+# combos in sorted in ascending order
+# comboA > comboB a1>b1 
+# solution must not contain dupes
+# may choose from A unlimited number of times
+# https://www.interviewbit.com/problems/combination-sum/
+def combinationSum(A: list[int], B: int) -> list[list[int]]:
+    def backtrack(start, path, target):
+        if target == 0:
+            result.append(path[:])
+            return
+        elif target < 0:
+            return
+        
+        for i in range(start, len(A)):
+            # skip dupes
+            if i > start and A[i] == A[i - 1]:
+                continue
+            path.append(A[i])
+            # we can re-use i so we keep slamming on it until we reach there
+            # or go too far. you then backtrack once you went too far
+            # and try the next elt.
+            # you append/pop each attempt
+            backtrack(i, path, target - A[i])
+            path.pop()
+            
+    A.sort()
+    result = []
+    backtrack(0, [], B)
+    return result
+
+# @param A : tuple of integers
+# @param B : tuple of integers
+# @param C : tuple of integers
+# @return an integer
+# find i jk such that max(abs(A[i] - B[i]), abs[B[j]- C[k], abs[C[k] - A[i]]]) is min
+# return that min
+# 3 arrays, one index per arrays
+# arrays are sorted
+# https://www.interviewbit.com/problems/array-3-pointers
+def minimizeDiff(A, B, C):
+    # go through all of A. binary search for element just smaller than or equal in b and c. note the diff
+    # repeat for b and c
+    i,j,k = 0,0,0
+    min_diff = float('inf')
+    while i < len(A) and j < len(B) and k < len(C):
+        max_val = max(A[i], B[j], C[k])
+        min_val = min(A[i], B[j], C[k])
+        
+        min_diff = min(min_diff, max_val - min_val)
+        if min_val == A[i]:
+            i += 1
+        elif min_val == B[j]:
+            j += 1
+        else:
+            k += 1
+    return min_diff
+
+def test_minimizeDiff():
+    assert minimizeDiff((1, 4, 10), (2, 15, 20), (10, 12))
+
 # LRU least recently used cache
 # some capacity N
 # get(key)
@@ -1758,6 +1855,432 @@ def test_generatorExpressions():
         for line in lines_with_python:
             print(line)
 
+# facebook coding
+def has_contiguous_sequence(seq, total):
+    prefix_sum_map = {}
+    current_sum = 0
+
+    for index, num in enumerate(seq):
+        current_sum += num
+
+        # If current_sum is equal to the target, we found a subarray
+        if current_sum == total:
+            return True
+
+        # If (current_sum - total) exists in the map, it means there is a subarray
+        # that sums to the target
+        if (current_sum - total) in prefix_sum_map:
+            return True
+
+        # Store the current_sum in the map
+        prefix_sum_map[current_sum] = index
+
+    return False
+
+def findKthLargest(arr, K):
+    # Initialize a min-heap
+    min_heap = []
+    
+    # Iterate over each element in the array
+    for num in arr:
+        heapq.heappush(min_heap, num)
+        
+        # If heap size exceeds K+1, remove the smallest element
+        if len(min_heap) > K + 1:
+            heapq.heappop(min_heap)
+    
+    # The smallest element in the heap is the Kth largest element
+    return heapq.heappop(min_heap)
+
+# amazon leet code
+# https://leetcode.com/problems/sort-array-by-increasing-frequency
+def frequencySort(nums: list[int]) -> list[int]:
+    # could count all the frequencies
+    counter = Counter(nums)
+    # first sort by counter[x]
+    # criterion in order by comma
+    nums.sort(key=lambda x: (counter[x], -x))
+    return nums
+
+def test_frequencySort():
+    assert frequencySort([1,1,2,2,2,3]) == [3,1,1,2,2,2]
+
+# can put any number as long as does not exceed truck size
+# number of boxes, number of units for each box type
+# return number of units
+# https://leetcode.com/problems/maximum-units-on-a-truck/
+def maximumUnits(boxTypes: list[list[int]], truckSize: int) -> int:
+    # now sorted by frequency
+    boxTypes.sort(key = lambda x: (x[1]))
+    maxUnits = 0
+    while truckSize > 0 and boxTypes:
+        most = boxTypes.pop()
+        if truckSize >= most[0]:
+            truckSize -= most[0]
+            maxUnits += most[0] * most[1]
+        else:
+            maxUnits += most[1] * truckSize
+            return maxUnits        
+    return maxUnits
+
+def test_maximumUnits():
+    assert maximumUnits([[1,3],[2,2],[3,1]], 4) == 8
+
+# https://leetcode.com/problems/make-array-zero-by-subtracting-equal-amounts/description/
+def minimumOperations(nums: list[int]) -> int:
+    # unique_non_zero_elements = {num for num in nums if num > 0}
+    counter = Counter(nums)
+    ans = 0
+    for count in counter.keys():
+        if count >= 1:
+            ans += 1
+    return ans
+
+def test_minimumOperations():
+    assert minimumOperations([1,5,0,3,5]) == 3
+
+# https://leetcode.com/problems/design-parking-system/
+class ParkingSystem:
+    # car can only part in space of its type
+    def __init__(self, big: int, medium: int, small: int):
+        self.big = big
+        self.medium = medium
+        self.small = small
+        # self.empty = [big, medium, small]
+
+    def addCar(self, carType: int) -> bool:
+        # if self.empty[carType - 1] > 0:
+        #     self.empty[carType - 1] -= 1
+        #     return True
+        if carType == 3 and self.small > 0:
+            self.small -= 1
+            return True
+        elif carType == 2 and self.medium > 0:
+            self.medium -= 1
+            return True
+        elif carType == 1 and self.big > 0:
+            self.big -= 1
+            return True
+        return False
+
+class RandomNode:
+    def __init__(self, x: int, next: 'RandomNode' = None, random: 'RandomNode' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+    
+# https://leetcode.com/problems/copy-list-with-random-pointer
+def copyRandomList(head: 'Optional[RandomNode]') -> 'Optional[RandomNode]':
+    if head is None:
+        return head
+    # need to update the random values. can use a map
+    # insert nodes in middle, then update next and random around them
+    curr = head
+    while curr:
+        new_node = RandomNode(curr.val)
+        new_node.next = curr.next
+        curr.next = new_node
+        curr = new_node.next
+
+    curr = head
+    # update the randoms
+    while curr:
+        if curr.random:
+            curr.next.random = curr.random.next
+        # skip 2
+        curr = curr.next.next
+
+    # delete the olds
+    new_head = head.next
+    # where we about to delete
+    curr_old = head
+    # what we keeping
+    curr_new = new_head
+    while curr_old:
+        curr_old.next = curr_new.next
+        curr_old = curr_old.next
+        if curr_old:
+            curr_new.next = curr_old.next
+            curr_new = curr_new.next
+    return new_head
+
+def test_copyRandomList():
+    nodes = [RandomNode(7), RandomNode(13), RandomNode(11), RandomNode(10), RandomNode(1)]
+    
+    # Set up next pointers
+    for i in range(len(nodes) - 1):
+        nodes[i].next = nodes[i + 1]
+    
+    # Set up random pointers
+    nodes[1].random = nodes[0]
+    nodes[2].random = nodes[4]
+    nodes[3].random = nodes[2]
+    nodes[4].random = nodes[0]
+
+    # Get the head of the original list
+    head = nodes[0]
+    copied_head = copyRandomList(head)
+    assert copied_head.val == 7
+
+# https://leetcode.com/problems/meeting-rooms-ii/
+def minMeetingRooms(intervals: list[list[int]]) -> int:
+    intervals.sort(key= lambda x: (x[0], x[1]))
+    # go through each start
+    # find max size of heap
+    room_heap = []
+    max_size = 0
+    for start, end in intervals:
+        while room_heap and start >= room_heap[0]:
+            heappop(room_heap)
+        heappush(room_heap, (end))
+        max_size = max(max_size, len(room_heap))
+    return max_size
+
+def test_minMeetingRooms():
+    assert minMeetingRooms([[0,30],[5,10],[15,20]]) == 2
+    assert minMeetingRooms([[1,13], [13, 15]]) == 1
+
+# https://leetcode.com/problems/design-tic-tac-toe/
+class TicTacToe:
+    # trade space so move can be done in O(1)
+    # diag and anti_diagonal
+    # assumed to be valid
+    # keep track of whole board
+    # n marks not 3 omg
+    def __init__(self, n: int):
+        self.n = n
+        self.rows = [0 for _ in range(n)]
+        self.cols = [0 for _ in range(n)]
+        self.diag = 0
+        self.antiDiag = 0
+        return
+
+    def move(self, row: int, col: int, player: int) -> int:
+        current = 1 if player == 1 else -1
+        
+        self.rows[row] += current
+        self.cols[col] += current
+        if row == col:
+            self.diag += current
+
+        if row + col == self.n - 1:
+            self.antiDiag += current
+        
+        if abs(self.rows[row]) == self.n or \
+            abs(self.cols[col]) == self.n or \
+            abs(self.diag) == self.n or \
+            abs(self.antiDiag) == self.n:
+            return player
+        return 0
+
+# https://leetcode.com/problems/reorganize-string/
+# no two characters are the same
+# or "" if not possible
+# alternate most common letters?
+def reorganizeString(s: str) -> str:
+        char_counts = Counter(s)
+        max_heap = [(-count, char) for char, count in char_counts.items()]
+        heapq.heapify(max_heap)
+
+        result = []
+        while len(max_heap) >= 2:
+            count1, char1 = heapq.heappop(max_heap)
+            count2, char2 = heapq.heappop(max_heap)
+            result.extend([char1, char2])
+
+            if count1 + 1 < 0:
+                heapq.heappush(max_heap, (count1 +1, char1))
+            if count2 + 1 < 0:
+                heapq.heappush(max_heap, (count2 + 1, char2))
+
+        if max_heap:
+            # how many leftover
+            count, char = heapq.heappop(max_heap)
+            if -count > 1:
+                return ""
+            result.append(char)
+        return ''.join(result)
+
+def test_reorganizeString():
+    assert reorganizeString("aab") == "aba"
+
+    # mx n grid but can snake around
+    # dfs around
+def wordSearchExist(board: list[list[str]], word: str) -> bool:
+    if not board or not word:
+        return False
+
+    rows, cols = len(board), len(board[0])
+
+    def dfs(r, c, idx):
+        if idx == len(word):
+            return True
+        if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != word[idx]:
+            return False
+
+        temp = board[r][c]
+        board[r][c] = '#'
+
+        found = (dfs(r + 1, c, idx + 1) or
+                dfs(r - 1, c, idx+1) or
+                dfs(r, c + 1, idx + 1) or
+                dfs(r, c - 1, idx + 1))
+
+        board[r][c] = temp
+        return found
+
+    for i in range(rows):
+        for j in range(cols):
+            if board[i][j] == word[0] and dfs(i, j, 0):
+                return True
+    return False
+
+def test_wordSearchExist():
+    assert wordSearchExist([["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], "SEE") == True
+    assert wordSearchExist([["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], "ABCB") == False
+
+# leetcode.com/problems/move-zeroes
+# in place
+def moveZeroes(nums: list[int]) -> None:
+    """
+    Do not return anything, modify nums in-place instead.
+    """
+    nonzero = 0
+    for i in range(len(nums)):
+        if nums[i] != 0:
+            nums[i], nums[nonzero] = 0, nums[i]
+            nonzero += 1
+    pass
+
+def test_moveZeros():
+    test = [0, 1, 0, 3, 12] 
+    moveZeroes(test)
+    assert test == [1, 3, 12, 0, 0]
+
+
+# https://leetcode.com/problems/merge-sorted-array
+# two pointer
+def mergeSortedArrays(nums1: list[int], m: int, nums2: list[int], n: int) -> None:
+        """
+        Do not return anything, modify nums1 in-place instead.
+        """
+        p1 = m - 1
+        p2 = n - 1
+
+        for p in range(m + n -1, -1, -1):
+            if p2 < 0:
+                break
+            if p1 >= 0 and nums1[p1] > nums2[p2]:
+                nums1[p] = nums1[p1]
+                p1 -= 1
+            else:
+                nums1[p] = nums2[p2]
+                p2 -= 1
+
+def test_mergeSortedArrays():
+    mergeSortedArrays([1,2,3,0,0,0], 3, [2,5,6], 3)
+
+# https://leetcode.com/problems/valid-palindrome-ii
+def moveLetterPalindrome(s: str) -> bool:
+    def isPalindrome(s, i, j):
+        while i <j:
+            if s[i] != s[j]:
+                return False
+            i += 1
+            j -= 1
+        return True
+
+    i, j = 0, len(s) - 1
+    while i < j:
+        if s[i] != s[j]:
+            return isPalindrome(s, i, j - 1) or isPalindrome(s, i + 1, j)
+        i += 1
+        j -= 1
+    return True
+
+def test_moveLetterPalindrome():
+    assert moveLetterPalindrome('aba') == True
+    assert moveLetterPalindrome('abca') == True
+    assert moveLetterPalindrome('abc') == False
+
+# bin search. isbadversion is a provided api
+# https://leetcode.com/problems/first-bad-version
+def firstBadVersion(n: int) -> int:
+    # bin search
+    low = 1
+    high = n
+    while low < high:
+        mid = low + (high - low) // 2
+        if isBadVersion(mid):
+            high = mid
+        else:
+            low = mid + 1
+    return low
+
+# 1 2 0 0
+# 3 4
+# 1 2 3 4
+# 2 1 5
+# 8 0 6
+# = 1 0 2 1
+# https://leetcode.com/problems/add-to-array-form-of-integer
+def addToArrayForm(num: list[int], k: int) -> list[int]:
+    tens = 1
+    full = 0
+    for digit in reversed(num):
+        full += digit * tens
+        tens *= 10
+    
+    sum = full + k
+    ans = []
+    while sum > 0:
+        ans.append(sum % 10)
+        sum //= 10
+    return reversed(ans)
+
+# replace . with [.]
+def defangIPaddr(address: str) -> str:
+    return address.replace('.', '[.]')
+
+# https://leetcode.com/problems/sum-of-unique-elements
+def sumOfUnique(nums: list[int]) -> int:
+    unique = defaultdict(int)
+    sum = 0
+    for num in nums:
+        unique[num] += 1
+
+    for key, val in unique.items():
+        if val == 1:
+            sum += key
+    return sum
+
+def test_sumOfUnique():
+    assert sumOfUnique([1,2,3,2]) == 4
+    assert sumOfUnique([1,2,3,4,5]) == 15
+    assert sumOfUnique([1,1,1,1,1]) == 0
+
+# ans[i] = nums[nums[i]]
+# https://leetcode.com/problems/build-array-from-permutation
+# could multiply by q and not use extra space
+def buildArray(nums: list[int]) -> list[int]:
+    ans = [0 for i in range(len(nums))]
+    for i in range(len(nums)):
+        ans[i] = nums[nums[i]]
+    return ans
+
+# item = type, color, name
+# rule key and rule value
+# https://leetcode.com/problems/count-items-matching-a-rule
+def countMatches(items: list[list[str]], ruleKey: str, ruleValue: str) -> int:
+    count = 0
+    for type, color, name in items:
+        if ruleKey == 'type' and ruleValue == type:
+            count += 1
+        elif ruleKey == 'color' and ruleValue == color:
+            count += 1
+        elif ruleKey == 'name' and ruleValue == name:
+            count += 1
+    return count
 
 # python practice.py
 if __name__ == "__main__":
@@ -1807,9 +2330,26 @@ if __name__ == "__main__":
     test_sortColors()
     test_maxDepth()
     test_threeSumClosest()
+    test_permute()
+    test_minimizeDiff()
 
     # practice
     test_LRU()
     test_countZerosInNFact()
     test_numberOfFactorialMembersFactorFive()
+
+    # amazon leet code
+    test_frequencySort()
+    test_maximumUnits()
+    test_minimumOperations()
+    test_copyRandomList()
+    test_minMeetingRooms()
+    test_reorganizeString()
+    test_wordSearchExist()
+    test_moveZeros()
+    test_mergeSortedArrays()
+    test_moveLetterPalindrome()
+    test_sumOfUnique()
+
+    # concurency
     print("All tests passed")

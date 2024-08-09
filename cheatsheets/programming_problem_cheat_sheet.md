@@ -4,6 +4,8 @@ Some of these are notes from Elements of Programming Interviews from 2016.
 In 2024, I went through this [website's problems.](https://takeuforward.org/interviews/blind-75-leetcode-problems-detailed-video-solutions.)
 I also like Codewars Katas to just get some basic stuff going.
 
+[Leetcode](https://blog.algomaster.io/p/15-leetcode-patterns) patterns is also useful.
+
 ## Problem Notes
 
 If you need to insert and keep things in order. BST are often the answer. That's
