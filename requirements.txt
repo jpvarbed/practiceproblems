@@ -1,1 +1,3 @@
 sortedcontainers
+requests
+beautifulsoup4

@@ -2282,6 +2282,17 @@ def countMatches(items: list[list[str]], ruleKey: str, ruleValue: str) -> int:
             count += 1
     return count
 
+    # powers of 26
+    # ZY is 701
+def convertToTitle(columnNumber: int) -> str:
+    result = []
+    while columnNumber > 0:
+        # zero indexed
+        columnNumber -= 1
+        result.append(chr(columnNumber % 26 + ord('A')))
+        columnNumber //= 26
+    return ''.join(result[::-1])
+
 # python practice.py
 if __name__ == "__main__":
     test_FileStore()
