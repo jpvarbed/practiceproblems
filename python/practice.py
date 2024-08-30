@@ -1,7 +1,8 @@
 import sys
 from collections import deque, defaultdict, Counter # for aircargobooker & alienOrder
 import heapq # for aircargobookercost
-import bisect # calendar
+import bisect
+from typing import Optional # calendar
 from sortedcontainers import SortedDict # Calendar
 import json # timesheet
 from datetime import datetime, timedelta
@@ -2293,6 +2294,53 @@ def convertToTitle(columnNumber: int) -> str:
         columnNumber //= 26
     return ''.join(result[::-1])
 
+# https://leetcode.com/problems/longest-common-prefix
+def longestCommonPrefix(strs: list[str]) -> str:
+    if not strs:
+        return ""
+    for i in range(len(strs[0])):
+        c = strs[0][i]
+        for j in range(1, len(strs)):
+            if i == len(strs[j]) or strs[j][i] != c:
+                # if we find 0 matches we return string 0 to 0
+                return strs[0][0:i]
+    return strs[0]
+
+def test_longestCommonPrefix():
+    assert longestCommonPrefix(["flower","flow","flight"]) == "fl"
+    assert longestCommonPrefix(["dog","racecar","car"]) == ""
+
+# https://leetcode.com/problems/merge-two-sorted-lists
+def mergeTwoLists(list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+    prehead = ListNode(-1)
+    prev = prehead
+    while list1 and list2:
+        if list1.val < list2.val:
+            prev.next = list1
+            list1 = list1.next
+        else:
+            prev.next = list2
+            list2 = list2.next
+        prev = prev.next
+    prev.next = list1 if list1 is not None else list2
+    return prehead.next
+
+ # intersect at a val or 0 if no intersection
+# easy way store, set each val, once you find intersection you then go back and iterate until you find that val
+# how to preserve order
+# you can just look at the shorter list
+# https://leetcode.com/problems/intersection-of-two-linked-lists
+def getIntersectionNode(headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+    pA = headA
+    pB = headB
+    # one goes through shorter and one through longer and they line up
+    # this is a bit fancy. could just start at diff in longer list
+    while pA != pB:
+        pA = headB if pA is None else pA.next
+        pB = headA if pB is None else pB.next
+
+    return pA
+
 # python practice.py
 if __name__ == "__main__":
     test_FileStore()
@@ -2361,6 +2409,7 @@ if __name__ == "__main__":
     test_mergeSortedArrays()
     test_moveLetterPalindrome()
     test_sumOfUnique()
+    test_longestCommonPrefix()
 
     # concurency
     print("All tests passed")
