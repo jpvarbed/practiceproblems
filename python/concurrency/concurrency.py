@@ -496,5 +496,63 @@ class BoundedBlockingQueue:
         with self.condition:
             return len(self.queue)
 
+from threading import Condition
+# https://leetcode.com/problems/fizz-buzz-multithreaded/
+class FizzBuzz:
+    def __init__(self, n: int):
+        self.n = n
+        self.i = 1
+        self.condition = Condition()
+
+    # fizzbuzz if i is divisible by 3 and 5
+    # fizz if divisible by 3 and not 5
+    # buzz if i is divisible by 5 and not 3
+    # i if not divisible by 3 or 5
+    # printFizz() outputs "fizz"
+    def fizz(self, printFizz: 'Callable[[], None]') -> None:
+        with self.condition:
+            while self.i <= self.n:
+                if self.i % 3 == 0 and self.i % 5 != 0:
+                    printFizz()
+                    self.i += 1
+                    self.condition.notify_all()
+                else:
+                    self.condition.wait()
+
+    # printBuzz() outputs "buzz"
+    def buzz(self, printBuzz: 'Callable[[], None]') -> None:
+        with self.condition:
+            while self.i <= self.n:
+                if self.i % 3 != 0 and self.i % 5 == 0:
+                    printBuzz()
+                    self.i += 1
+                    self.condition.notify_all()
+                else:
+                    self.condition.wait()
+    	
+
+    # printFizzBuzz() outputs "fizzbuzz"
+    def fizzbuzz(self, printFizzBuzz: 'Callable[[], None]') -> None:
+        with self.condition:
+            while self.i <= self.n:
+                if self.i % 3 == 0 and self.i % 5 == 0:
+                    printFizzBuzz()
+                    self.i += 1
+                    self.condition.notify_all()
+                else:
+                    self.condition.wait()
+    	
+
+    # printNumber(x) outputs "x", where x is an integer.
+    def number(self, printNumber: 'Callable[[int], None]') -> None:
+        with self.condition:
+            while self.i <= self.n:
+                if self.i % 3 != 0 and self.i % 5 != 0:
+                    printNumber(self.i)
+                    self.i += 1
+                    self.condition.notify_all()
+                else:
+                    self.condition.wait()
+
 if __name__ == '__main__':
     unittest.main()
