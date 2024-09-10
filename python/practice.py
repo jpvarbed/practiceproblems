@@ -2341,6 +2341,62 @@ def getIntersectionNode(headA: ListNode, headB: ListNode) -> Optional[ListNode]:
 
     return pA
 
+def max_words_packed(board, dictionary):
+    directions = [(0,1), (1,0), (0, -1), (-1, 0)] #right left up down
+    def dfs(used, words_packed):
+        nonlocal max_packed
+        max_packed = max(max_packed, len(words_packed))
+        print(f"words {words_packed}")
+        for word in dictionary:
+            if word in words_packed:
+                continue
+            for i in range(len(board)):
+                for j in range(len(board[0])):
+                    if can_place_word(board, word, i ,j, used, set()):
+                        new_used = used | set((i, j) for i, j in word_positions)
+                        dfs(new_used, words_packed + [word])
+
+    # check if its fits
+    # see if you can make your way through the board
+    def can_place_word(board, word, i, j, used, current_path):
+        # track path
+        if len(current_path) == len(word):
+            global word_positions
+            word_positions = current_path
+            return True
+        # all that work
+        if (i < 0 or i>= len(board) or j < 0 or j >= len(board[0]) or
+            (i,j) in used or (i, j) in current_path or
+            board[i][j] != word[len(current_path)]):
+            return False
+        if len(used) > 0 or len(current_path) > 0:
+            print(f"used {used} path{current_path}")
+
+        current_path.add((i, j))
+        for di, dj in directions:
+            if can_place_word(board, word, i + di, j+ dj, used, current_path):
+                return True
+        current_path.remove((i, j))
+        return False
+
+    max_packed = 0
+    word_positions= set()
+    dfs(set(), [])
+    return max_packed
+
+def test_max_words_packed():
+    board = [
+        ['E', 'N', 'P'],
+        ['G', 'S', 'C'],
+        ['O', 'N', 'S']
+    ]
+    dictionary = ['EGO', 'EGOS', 'EGONS', 'SNO', 'SONGS', 'NC', 'SNS', 'P']
+    result = max_words_packed(board, dictionary)
+    print(result)
+    assert result == 3
+
+
+
 # python practice.py
 if __name__ == "__main__":
     test_FileStore()
@@ -2410,6 +2466,8 @@ if __name__ == "__main__":
     test_moveLetterPalindrome()
     test_sumOfUnique()
     test_longestCommonPrefix()
+
+    test_max_words_packed()
 
     # concurency
     print("All tests passed")
