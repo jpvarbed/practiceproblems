@@ -2345,6 +2345,7 @@ def max_words_packed(board, dictionary):
     directions = [(0,1), (1,0), (0, -1), (-1, 0)] #right left up down
     def dfs(used, words_packed):
         nonlocal max_packed
+        nonlocal word_positions
         max_packed = max(max_packed, len(words_packed))
         print(f"words {words_packed}")
         for word in dictionary:
@@ -2359,9 +2360,9 @@ def max_words_packed(board, dictionary):
     # check if its fits
     # see if you can make your way through the board
     def can_place_word(board, word, i, j, used, current_path):
+        nonlocal word_positions
         # track path
         if len(current_path) == len(word):
-            global word_positions
             word_positions = current_path
             return True
         # all that work
@@ -2370,7 +2371,7 @@ def max_words_packed(board, dictionary):
             board[i][j] != word[len(current_path)]):
             return False
         if len(used) > 0 or len(current_path) > 0:
-            print(f"used {used} path{current_path}")
+            print(f"used {used} path{current_path} word_positions{word_positions}")
 
         current_path.add((i, j))
         for di, dj in directions:
